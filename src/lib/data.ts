@@ -4,7 +4,6 @@ export type User = {
   id: string
   name: string
   email: string
-  avatar: string
   role: "administrator" | "editor" | "viewer"
 }
 
@@ -57,35 +56,30 @@ export const users: User[] = [
     id: "user-1",
     name: "Admin User",
     email: "admin@example.com",
-    avatar: "/placeholder.svg?height=40&width=40",
     role: "administrator",
   },
   {
     id: "user-2",
     name: "Editor User",
     email: "editor@example.com",
-    avatar: "/placeholder.svg?height=40&width=40",
     role: "editor",
   },
   {
     id: "user-3",
     name: "Viewer User",
     email: "viewer@example.com",
-    avatar: "/placeholder.svg?height=40&width=40",
     role: "viewer",
   },
   {
     id: "user-4",
     name: "Sarah Johnson",
     email: "sarah@example.com",
-    avatar: "/placeholder.svg?height=40&width=40",
     role: "editor",
   },
   {
     id: "user-5",
     name: "Michael Chen",
     email: "michael@example.com",
-    avatar: "/placeholder.svg?height=40&width=40",
     role: "editor",
   },
 ]

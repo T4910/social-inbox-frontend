@@ -1,8 +1,11 @@
 "use server"
+
+import { User } from "./data"
+
 // import { users, type User } from "./data"
 
 // In a real application, this would be a database query
-export async function getCurrentUser(): Promise<{ user: { id: string, email: string }} | null> {
+export async function getCurrentUser(): Promise<User | null> {
   const backendUrl = process.env.BACKEND_URL || "http://127.0.0.1:8787"
   
   try {
@@ -11,13 +14,13 @@ export async function getCurrentUser(): Promise<{ user: { id: string, email: str
       credentials: "include",
     })
     
-    const { user } = await response.json() as { user: { id: string, email: string }}
+    const user  = await response.json() as User
   
     if (!user) {
       return null
     }
   
-    return { user }
+    return user
     
   } catch (error) {
     return null
