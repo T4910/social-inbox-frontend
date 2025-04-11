@@ -26,6 +26,7 @@ const actionTypes = {
 } as const
 
 let count = 0
+console.log(actionTypes)
 
 function genId() {
   count = (count + 1) % Number.MAX_SAFE_INTEGER
@@ -191,4 +192,5 @@ function useToast() {
   }
 }
 
-export { useToast, toast }
+export { toast, useToast }
+

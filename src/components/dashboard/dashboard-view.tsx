@@ -1,17 +1,17 @@
 "use client"
 
-import { useState } from "react"
-import { useQuery } from "@tanstack/react-query"
-import { type User, tasks, projects, getTasksByAssigneeId, getProjectsByMemberId } from "@/lib/data"
 import { DashboardHeader } from "@/components/dashboard/dashboard-header"
-import { TaskSummary } from "@/components/dashboard/task-summary"
-import { TaskList } from "@/components/tasks/task-list"
 import { ProjectList } from "@/components/dashboard/project-list"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { PlusCircle } from "lucide-react"
+import { TaskSummary } from "@/components/dashboard/task-summary"
 import { CreateTaskDialog } from "@/components/tasks/create-task-dialog"
+import { TaskList } from "@/components/tasks/task-list"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { type User, getProjectsByMemberId, getTasksByAssigneeId, projects, tasks } from "@/lib/data"
+import { useQuery } from "@tanstack/react-query"
+import { PlusCircle } from "lucide-react"
+import { useState } from "react"
 
 export function DashboardView({ user }: { user: User }) {
   const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false)
@@ -37,7 +37,7 @@ export function DashboardView({ user }: { user: User }) {
 
   return (
     <div className="flex flex-col h-full">
-      <DashboardHeader user={user} />
+      <DashboardHeader />
 
       <div className="flex-1 overflow-auto p-4 md:p-6">
         <div className="flex flex-col gap-6">

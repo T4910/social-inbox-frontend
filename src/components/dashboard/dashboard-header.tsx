@@ -1,13 +1,13 @@
 "use client"
 
-import type { User } from "@/lib/data"
-import { Button } from "@/components/ui/button"
 import { useSidebar } from "@/components/sidebar-provider"
-import { Menu, Bell, Sun, Moon } from "lucide-react"
-import { useTheme } from "next-themes"
+import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import type { User } from "@/lib/data"
+import { Bell, Menu, Moon, Sun } from "lucide-react"
+import { useTheme } from "next-themes"
 
-export function DashboardHeader({ user }: { user: User }) {
+export function DashboardHeader() {
   const { toggle } = useSidebar()
   const { setTheme } = useTheme()
 

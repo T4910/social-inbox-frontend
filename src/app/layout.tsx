@@ -1,4 +1,3 @@
-import { AppSidebar } from "@/components/app-sidebar"
 import { QueryProvider } from "@/components/query-provider"
 import { SidebarProvider } from "@/components/sidebar-provider"
 import { ThemeProvider } from "@/components/theme-provider"

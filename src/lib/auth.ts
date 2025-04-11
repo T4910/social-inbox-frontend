@@ -23,6 +23,7 @@ export async function getCurrentUser(): Promise<User | null> {
     return user
     
   } catch (error) {
+    console.error("Error fetching current user:", error)
     return null
   }
 }
@@ -52,6 +53,7 @@ export async function login(email: string, password: string): Promise<{ message:
   
     return null
   } catch (error) {
+    console.error("Error fetching current user:", error)
     return null
   }
 }
@@ -98,6 +100,8 @@ export async function logout(): Promise<void> {
 
 export async function hasPermission(resource: string, action: string): Promise<boolean> {
   const user = await getCurrentUser()
+
+  console.log(resource, action, user)
 
   if (!user) {
     return false

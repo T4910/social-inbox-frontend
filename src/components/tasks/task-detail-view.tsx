@@ -1,19 +1,6 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { type User, type Task, tasks, getUserById, type Comment, users } from "@/lib/data"
 import { DashboardHeader } from "@/components/dashboard/dashboard-header"
-import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { useToast } from "@/components/ui/use-toast"
-import { format } from "date-fns"
-import { ArrowLeft, MessageSquare, Trash2 } from "lucide-react"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,7 +12,20 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Separator } from "@/components/ui/separator"
+import { Textarea } from "@/components/ui/textarea"
+import { useToast } from "@/components/ui/use-toast"
 import { hasPermission } from "@/lib/auth"
+import { type Comment, getUserById, type Task, tasks, type User, users } from "@/lib/data"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { format } from "date-fns"
+import { ArrowLeft, MessageSquare, Trash2 } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
 
 interface TaskDetailViewProps {
   taskId: string
@@ -56,7 +56,7 @@ export function TaskDetailView({ taskId, user }: TaskDetailViewProps) {
   if (!task) {
     return (
       <div className="flex flex-col h-full">
-        <DashboardHeader user={user} />
+        <DashboardHeader />
         <div className="flex-1 p-6">
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="sm" onClick={() => router.back()}>
@@ -165,7 +165,7 @@ export function TaskDetailView({ taskId, user }: TaskDetailViewProps) {
 
   return (
     <div className="flex flex-col h-full">
-      <DashboardHeader user={user} />
+      <DashboardHeader />
 
       <div className="flex-1 overflow-auto p-4 md:p-6">
         <div className="flex flex-col gap-6 max-w-4xl mx-auto">
@@ -291,7 +291,7 @@ export function TaskDetailView({ taskId, user }: TaskDetailViewProps) {
                       {assignee ? (
                         <div className="flex items-center gap-2">
                           <Avatar className="h-6 w-6">
-                            <AvatarImage src={assignee.avatar} alt={assignee.name} />
+                            <AvatarImage src={"assignee.avatar"} alt={assignee.name} />
                             <AvatarFallback>{assignee.name.charAt(0)}</AvatarFallback>
                           </Avatar>
                           <span>{assignee.name}</span>
@@ -317,7 +317,7 @@ export function TaskDetailView({ taskId, user }: TaskDetailViewProps) {
                   {creator && (
                     <div className="flex items-center gap-2">
                       <Avatar className="h-6 w-6">
-                        <AvatarImage src={creator.avatar} alt={creator.name} />
+                        <AvatarImage src={"creator.avatar"} alt={creator.name} />
                         <AvatarFallback>{creator.name.charAt(0)}</AvatarFallback>
                       </Avatar>
                       <span>{creator.name}</span>
@@ -346,7 +346,7 @@ export function TaskDetailView({ taskId, user }: TaskDetailViewProps) {
                       <div key={comment.id} className="flex gap-3">
                         {commentUser && (
                           <Avatar className="h-8 w-8">
-                            <AvatarImage src={commentUser.avatar} alt={commentUser.name} />
+                            <AvatarImage src={"commentUser.avatar"} alt={commentUser.name} />
                             <AvatarFallback>{commentUser.name.charAt(0)}</AvatarFallback>
                           </Avatar>
                         )}
@@ -367,7 +367,7 @@ export function TaskDetailView({ taskId, user }: TaskDetailViewProps) {
 
               <div className="flex gap-3">
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={user.avatar} alt={user.name} />
+                  <AvatarImage src={"user.avatar"} alt={user.name} />
                   <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1 space-y-2">

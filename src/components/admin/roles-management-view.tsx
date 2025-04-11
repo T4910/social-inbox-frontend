@@ -2,22 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
-import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { roles, type Role, type Permission } from "@/lib/data"
 import { DashboardHeader } from "@/components/dashboard/dashboard-header"
-import { Button } from "@/components/ui/button"
-import { PlusCircle, Edit, Trash2 } from "lucide-react"
-import { useToast } from "@/components/ui/use-toast"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,12 +14,27 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Label } from "@/components/ui/label"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Checkbox } from "@/components/ui/checkbox"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Textarea } from "@/components/ui/textarea"
+import { useToast } from "@/components/ui/use-toast"
 import { getCurrentUser } from "@/lib/auth"
+import { roles, type Permission, type Role } from "@/lib/data"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { Edit, PlusCircle, Trash2 } from "lucide-react"
+import { useState } from "react"
 
 export function RolesManagementView() {
   const { toast } = useToast()
@@ -104,7 +104,7 @@ export function RolesManagementView() {
 
   return (
     <div className="flex flex-col h-full">
-      <DashboardHeader user={user!} />
+      <DashboardHeader />
 
       <div className="flex-1 overflow-auto p-4 md:p-6">
         <div className="flex flex-col gap-6">

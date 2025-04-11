@@ -9,6 +9,6 @@ export default async function TaskDetailPage({ params }: { params: Promise<{ id:
     redirect("/login")
   }
 
-  return <>Task Detials vEiw </>
-  // return <TaskDetailView taskId={(await params).id} user={user} />
+  // return <>Task Detials vEiw </>
+  return <TaskDetailView taskId={(await params).id} user={user} />
 }
