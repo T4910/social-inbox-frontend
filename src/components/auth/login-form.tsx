@@ -5,9 +5,10 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { login } from "@/lib/auth"
+import { getCurrentUser, login, logout } from "@/lib/auth"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { AlertCircle } from "lucide-react"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
@@ -36,13 +37,18 @@ export function LoginForm() {
     setError(null)
 
     try {
-      const user = await login(values.email, values.password)
+      const res = await login(values.email, values.password)
+      
+      if (res?.status === 200) {
+        const user = await getCurrentUser()
+        console.log(res, user, 'login form')
+        // await logout()
 
-      if (user) {
+
         router.push("/dashboard")
         router.refresh()
       } else {
-        setError("Invalid email or password")
+        setError(res?.message || "An error occurred. Please try again.")
       }
     } catch (error) {
       setError(`An error occurred. Please try again. ${error}`)
@@ -102,7 +108,11 @@ export function LoginForm() {
         </Form>
       </CardContent>
       <CardFooter className="flex flex-col items-center text-sm text-muted-foreground">
-        <p>Don{"'"}t have an account, Sign up</p>
+        Demo Accounts: 
+        <p>{"(email: admin@taiwo.com, password: admin@taiwo.com)"}</p>
+        <p>{"(email: editor@taiwo.com, password: editor@taiwo.com)"}</p>
+        <p>{"(email: viewer@taiwo.com, password: viewer@taiwo.com)"}</p>
+        <p className="mt-4">Don{"'"}t have an account, <Link className=" text-orange-400 underline" href="/signup">Sign up</Link></p>
       </CardFooter>
     </Card>
   )

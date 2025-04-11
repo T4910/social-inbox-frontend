@@ -2,9 +2,8 @@
 
 export type User = {
   id: string
-  name: string
   email: string
-  role: "administrator" | "editor" | "viewer"
+  roles: {name: "administrator" | "editor" | "viewer" | string}[]
 }
 
 export type Task = {
@@ -50,39 +49,6 @@ export type Permission = {
   action: "create" | "read" | "update" | "delete"
 }
 
-// Mock users
-export const users: User[] = [
-  {
-    id: "user-1",
-    name: "Admin User",
-    email: "admin@example.com",
-    role: "administrator",
-  },
-  {
-    id: "user-2",
-    name: "Editor User",
-    email: "editor@example.com",
-    role: "editor",
-  },
-  {
-    id: "user-3",
-    name: "Viewer User",
-    email: "viewer@example.com",
-    role: "viewer",
-  },
-  {
-    id: "user-4",
-    name: "Sarah Johnson",
-    email: "sarah@example.com",
-    role: "editor",
-  },
-  {
-    id: "user-5",
-    name: "Michael Chen",
-    email: "michael@example.com",
-    role: "editor",
-  },
-]
 
 // Mock tasks
 export const tasks: Task[] = [
@@ -309,33 +275,33 @@ export const roles: Role[] = [
   },
 ]
 
-// Helper function to get user by ID
-export function getUserById(id: string): User | undefined {
-  return users.find((user) => user.id === id)
-}
+// // Helper function to get user by ID
+// export function getUserById(id: string): User | undefined {
+//   return users.find((user) => user.id === id)
+// }
 
-// Helper function to get tasks by assignee ID
-export function getTasksByAssigneeId(assigneeId: string): Task[] {
-  return tasks.filter((task) => task.assigneeId === assigneeId)
-}
+// // Helper function to get tasks by assignee ID
+// export function getTasksByAssigneeId(assigneeId: string): Task[] {
+//   return tasks.filter((task) => task.assigneeId === assigneeId)
+// }
 
-// Helper function to get tasks by creator ID
-export function getTasksByCreatorId(creatorId: string): Task[] {
-  return tasks.filter((task) => task.createdById === creatorId)
-}
+// // Helper function to get tasks by creator ID
+// export function getTasksByCreatorId(creatorId: string): Task[] {
+//   return tasks.filter((task) => task.createdById === creatorId)
+// }
 
-// Helper function to get projects by member ID
-export function getProjectsByMemberId(memberId: string): Project[] {
-  return projects.filter((project) => project.members.includes(memberId))
-}
+// // Helper function to get projects by member ID
+// export function getProjectsByMemberId(memberId: string): Project[] {
+//   return projects.filter((project) => project.members.includes(memberId))
+// }
 
-// Helper function to check if a user has a specific permission
-export function hasPermission(userId: string, resource: Permission["resource"], action: Permission["action"]): boolean {
-  const user = getUserById(userId)
-  if (!user) return false
+// // Helper function to check if a user has a specific permission
+// export function hasPermission(userId: string, resource: Permission["resource"], action: Permission["action"]): boolean {
+//   const user = getUserById(userId)
+//   if (!user) return false
 
-  const userRole = roles.find((role) => role.name.toLowerCase() === user.role)
-  if (!userRole) return false
+//   const userRole = roles.find((role) => role.name.toLowerCase() === user.role)
+//   if (!userRole) return false
 
-  return userRole.permissions.some((permission) => permission.resource === resource && permission.action === action)
-}
+//   return userRole.permissions.some((permission) => permission.resource === resource && permission.action === action)
+// }

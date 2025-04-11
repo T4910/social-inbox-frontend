@@ -38,13 +38,13 @@ export function SignupForm() {
     setError(null)
 
     try {
-      const user = await register(values.email, values.password, values.confirmPassword)
+      const data = await register(values.email, values.password, values.confirmPassword)
 
-      if (user) {
+      if (data?.status === 200) {
         router.push("/dashboard")
         router.refresh()
       } else {
-        setError("Invalid email or password")
+        setError(data?.message || "An error occurred. Please try again.")
       }
     } catch (error) {
       setError(`An error occurred. Please try again. ${error}`)

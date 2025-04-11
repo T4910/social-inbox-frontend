@@ -4,7 +4,7 @@ import { useSidebar } from "@/components/sidebar-provider"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
-import { getCurrentUser } from "@/lib/auth"
+import { getCurrentUser, logout } from "@/lib/auth"
 import { cn } from "@/lib/utils"
 import { useQuery } from "@tanstack/react-query"
 import { CheckSquare, LayoutDashboard, LogOut, Menu, Settings, Users } from "lucide-react"
@@ -20,7 +20,8 @@ export function AppSidebar() {
     queryFn: getCurrentUser,
   })
 
-  const isAdmin = user?.role === "administrator"
+  console.log("user", user)
+  const isAdmin = user?.roles[0].name === "administrator"
 
   const navigation = [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -62,22 +63,22 @@ export function AppSidebar() {
         {user && (
           <div className="flex items-center gap-3">
             <Avatar className="h-9 w-9">
-              <AvatarImage src={"user.avata"} alt={user.name} />
-              <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+              <AvatarImage src={"user.avata"} alt={user.email} />
+              <AvatarFallback>{user.email}</AvatarFallback>
             </Avatar>
             <div className="flex flex-col">
-              <span className="text-sm font-medium">{user.name}</span>
-              <span className="text-xs text-muted-foreground capitalize">{user.role}</span>
+              <span className="text-sm font-medium">{user.email}</span>
+              <span className="text-xs text-muted-foreground capitalize">{user.roles.map(role => user.roles.length > 1 ? `${role.name} ,` : `${role.name}`)}</span>
             </div>
-            <Button variant="ghost" size="icon" className="ml-auto" asChild>
-              <Link href="/api/logout">
+            <Button variant="ghost" size="icon" className="ml-auto" onClick={() => logout()}>
+              {/* <> */}
                 <LogOut className="h-5 w-5" />
                 <span className="sr-only">Log out</span>
-              </Link>
+              {/* </> */}
             </Button>
           </div>
         )}
-      </div>
+      </div> 
     </div>
   )
 
