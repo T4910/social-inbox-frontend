@@ -1,14 +1,14 @@
 "use client"
 
-import { useState } from "react"
-import Link from "next/link"
-import { type Task, getUserById } from "@/lib/data"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { type Task, getUserById } from "@/lib/data"
 import { format } from "date-fns"
 import { ChevronDown, ChevronUp } from "lucide-react"
+import Link from "next/link"
+import { useState } from "react"
 
 interface TasksTableProps {
   tasks: Task[]
@@ -139,7 +139,7 @@ export function TasksTable({ tasks }: TasksTableProps) {
                   {assignee ? (
                     <div className="flex items-center gap-2">
                       <Avatar className="h-6 w-6">
-                        <AvatarImage src={assignee.avatar} alt={assignee.name} />
+                        <AvatarImage src={"assignee.avatar"} alt={assignee.name} />
                         <AvatarFallback>{assignee.name.charAt(0)}</AvatarFallback>
                       </Avatar>
                       <span>{assignee.name}</span>

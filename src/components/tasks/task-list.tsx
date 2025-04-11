@@ -1,8 +1,8 @@
-import Link from "next/link"
-import { type Task, getUserById } from "@/lib/data"
-import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { type Task, getUserById } from "@/lib/data"
 import { format } from "date-fns"
+import Link from "next/link"
 
 interface TaskListProps {
   tasks: Task[]
@@ -39,7 +39,7 @@ export function TaskList({ tasks }: TaskListProps) {
             {assignee && (
               <div className="flex items-center gap-2">
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={assignee.avatar} alt={assignee.name} />
+                  <AvatarImage src={"assignee.avatar"} alt={assignee.name} />
                   <AvatarFallback>{assignee.name.charAt(0)}</AvatarFallback>
                 </Avatar>
               </div>

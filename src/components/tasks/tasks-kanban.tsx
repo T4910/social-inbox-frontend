@@ -1,10 +1,10 @@
 "use client"
-import Link from "next/link"
-import { type Task, getUserById } from "@/lib/data"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { type Task, getUserById } from "@/lib/data"
 import { format } from "date-fns"
+import Link from "next/link"
 
 interface TasksKanbanProps {
   tasks: Task[]
@@ -87,7 +87,7 @@ function TaskCard({ task }: { task: Task }) {
             {assignee ? (
               <>
                 <Avatar className="h-5 w-5">
-                  <AvatarImage src={assignee.avatar} alt={assignee.name} />
+                  <AvatarImage src={"assignee.avatar"} alt={assignee.name} />
                   <AvatarFallback>{assignee.name.charAt(0)}</AvatarFallback>
                 </Avatar>
                 <span>{assignee.name}</span>
