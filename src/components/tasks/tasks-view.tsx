@@ -1,23 +1,23 @@
 "use client"
 
-import { useState } from "react"
-import { useQuery } from "@tanstack/react-query"
-import { type User, tasks } from "@/lib/data"
 import { DashboardHeader } from "@/components/dashboard/dashboard-header"
-import { Button } from "@/components/ui/button"
-import { PlusCircle, Filter } from "lucide-react"
 import { CreateTaskDialog } from "@/components/tasks/create-task-dialog"
-import { TasksTable } from "@/components/tasks/tasks-table"
 import { TasksKanban } from "@/components/tasks/tasks-kanban"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { TasksTable } from "@/components/tasks/tasks-table"
+import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
-  DropdownMenuContent,
   DropdownMenuCheckboxItem,
+  DropdownMenuContent,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { type User, tasks } from "@/lib/data"
+import { useQuery } from "@tanstack/react-query"
+import { Filter, PlusCircle } from "lucide-react"
+import { useState } from "react"
 
 export function TasksView({ user }: { user: User }) {
   const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false)
@@ -43,7 +43,7 @@ export function TasksView({ user }: { user: User }) {
 
   return (
     <div className="flex flex-col h-full">
-      <DashboardHeader user={user} />
+      <DashboardHeader />
 
       <div className="flex-1 overflow-auto p-4 md:p-6">
         <div className="flex flex-col gap-6">
