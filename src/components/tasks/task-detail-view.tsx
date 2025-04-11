@@ -66,7 +66,7 @@ export function TaskDetailView({ taskId, user }: TaskDetailViewProps) {
           </div>
           <div className="mt-16 text-center">
             <h2 className="text-2xl font-bold">Task not found</h2>
-            <p className="text-muted-foreground">The task you're looking for doesn't exist or has been deleted.</p>
+            <p className="text-muted-foreground">The task you{"'"}re looking for doesn{"'"}t exist or has been deleted.</p>
           </div>
         </div>
       </div>

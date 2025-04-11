@@ -1,7 +1,7 @@
-import { type Project, getUserById } from "@/lib/data"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { type Project, getUserById } from "@/lib/data"
 import { formatDistanceToNow } from "date-fns"
 
 interface ProjectListProps {
@@ -36,7 +36,7 @@ export function ProjectList({ projects }: ProjectListProps) {
                 {owner && (
                   <div className="flex items-center gap-1">
                     <Avatar className="h-5 w-5">
-                      <AvatarImage src={owner.avatar} alt={owner.name} />
+                      <AvatarImage src={"owner.avatar"} alt={owner.name} />
                       <AvatarFallback>{owner.name.charAt(0)}</AvatarFallback>
                     </Avatar>
                     <span>{owner.name}</span>

@@ -46,6 +46,7 @@ export function RolesManagementView() {
     queryKey: ["currentUser"],
     queryFn: getCurrentUser,
   })
+  console.log(user)
 
   const { data: allRoles } = useQuery({
     queryKey: ["roles"],

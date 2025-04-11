@@ -21,7 +21,6 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useQueryClient } from "@tanstack/react-query"
 import { format } from "date-fns"
 import { CalendarIcon } from "lucide-react"
-import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
@@ -89,7 +88,7 @@ export function CreateTaskDialog({ open, onOpenChange, userId }: CreateTaskDialo
       form.reset()
     } catch (error) {
       toast({
-        title: "Error",
+        title: `Error ${error}`,
         description: "Failed to create task. Please try again.",
         variant: "destructive",
       })

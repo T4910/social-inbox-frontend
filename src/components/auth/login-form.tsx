@@ -102,7 +102,7 @@ export function LoginForm() {
         </Form>
       </CardContent>
       <CardFooter className="flex flex-col items-center text-sm text-muted-foreground">
-        <p>Don't have an account, Sign up</p>
+        <p>Don{"'"}t have an account, Sign up</p>
       </CardFooter>
     </Card>
   )

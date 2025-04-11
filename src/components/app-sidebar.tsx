@@ -1,15 +1,15 @@
 "use client"
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { LayoutDashboard, CheckSquare, Users, Settings, Menu, LogOut } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import { useSidebar } from "@/components/sidebar-provider"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { useQuery } from "@tanstack/react-query"
+import { Button } from "@/components/ui/button"
+import { Sheet, SheetContent } from "@/components/ui/sheet"
 import { getCurrentUser } from "@/lib/auth"
 import { cn } from "@/lib/utils"
-import { Sheet, SheetContent } from "@/components/ui/sheet"
+import { useQuery } from "@tanstack/react-query"
+import { CheckSquare, LayoutDashboard, LogOut, Menu, Settings, Users } from "lucide-react"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
 
 export function AppSidebar() {
   const { isOpen, toggle, isMobile } = useSidebar()
@@ -62,7 +62,7 @@ export function AppSidebar() {
         {user && (
           <div className="flex items-center gap-3">
             <Avatar className="h-9 w-9">
-              <AvatarImage src={user.avatar} alt={user.name} />
+              <AvatarImage src={"user.avata"} alt={user.name} />
               <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
             </Avatar>
             <div className="flex flex-col">
