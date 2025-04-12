@@ -344,12 +344,12 @@ export function TaskDetailView({ taskId, user }: TaskDetailViewProps) {
               <h2 className="text-xl font-semibold mb-4">Comments</h2>
 
               <div className="space-y-4 mb-6">
-                {task.comments.length === 0 ? (
+                {task.comments?.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
                     No comments yet
                   </div>
                 ) : (
-                  task.comments.map((comment) => {
+                  task.comments?.map((comment) => {
                     const commentUser = commentUsers.get(comment.userId);
 
                     return (
