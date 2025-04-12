@@ -1,129 +1,137 @@
-"use server"
+"use server";
+import { cookies } from "next/headers";
+import { BackendResponse, type User } from "./types";
 
-import { cookies } from "next/headers"
-import { type User } from "./data"
+const backendUrl = process.env.BACKEND_URL || "http://localhost:8787";
 
-// In a real application, this would be a database query
 export async function getCurrentUser(): Promise<User | null> {
-  const token = (await cookies()).get("auth_token")?.value
+  try {
+    const token = (await cookies()).get("auth_token")?.value;
 
-  const res = await fetch(`${process.env.BACKEND_URL}/api/auth/me`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "include",
-    body: JSON.stringify({ token }),
-  })
-  const data = await res.json() as { status: number, data?: User, message?: string }
+    console.log(token, "token");
+    const res = await fetch(`${backendUrl}/api/auth/me`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({ token }),
+    });
+    const data = (await res.json()) as BackendResponse<User>;
 
-  if (data.status !== 200 || !data.data) {
-    return null
+    console.log(data, "data");
+
+    if (!data.ok) {
+      return null;
+    }
+
+    return data.data || null;
+  } catch (error) {
+    console.error("Error fetching current user:", error);
+    return null;
   }
-
-  return data.data || null
 }
 
-export async function login(email: string, password: string): Promise<{ message: string, status: number} | null> {
-  // In a real application, this would validate credentials against a database
-  // For this mock, we'll just check if the email exists and set a cookie
-
-  const res = await fetch(`${process.env.BACKEND_URL}/api/auth/login`, {
+export async function login(
+  email: string,
+  password: string
+): Promise<{ message: string; status: number } | null> {
+  const res = await fetch(`${backendUrl}/api/auth/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     credentials: "include",
     body: JSON.stringify({ email, password }),
-  })
+  });
 
-  const { status, message: token } = await res.json() as { message: string, status: number }
+  type token = string;
+  const data = (await res.json()) as BackendResponse<token>;
 
-  if (status === 200) {
+  if (data.ok) {
     // Set a cookie to simulate authentication
-    (await cookies()).set("auth_token", token, {
+    (await cookies()).set("auth_token", data.data, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       maxAge: 60 * 60 * 24 * 7, // 1 week
       path: "/",
-    })
+    });
 
-    return { message: "User login successfully", status }
+    return { message: "User login successfully", status: 200 };
   }
 
-  return null
+  return { message: data.message || "Login failed", status: data.status };
 }
 
-export async function register(email: string, password: string, confirmPassword: string): Promise<{ message: string, status: number} | null> {
-  // In a real application, this would validate credentials against a database
-  // For this mock, we'll just check if the email exists and set a cookie
+export async function register(
+  email: string,
+  password: string,
+  confirmPassword: string
+): Promise<{ message: string; status: number } | null> {
   if (password !== confirmPassword) {
-    return { message: "Passwords do not match", status: 400 }
+    return { message: "Passwords do not match", status: 400 };
   }
 
-  const res = await fetch(`${process.env.BACKEND_URL}/api/auth/register`, {
+  const res = await fetch(`${backendUrl}/api/auth/register`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     credentials: "include",
     body: JSON.stringify({ email, password }),
-  })
+  });
 
-  const { status, message: token } = await res.json() as { message: string, status: number }
+  type token = string;
+  const data = (await res.json()) as BackendResponse<token>;
 
-  if (status === 200) {
+  if (data.ok) {
     // Set a cookie to simulate authentication
-    (await cookies()).set("auth_token", token, {
+    (await cookies()).set("auth_token", data.data, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       maxAge: 60 * 60 * 24 * 7, // 1 week
       path: "/",
-    })
+    });
 
-    return { message: "User registered successfully", status }
+    return { message: "User registered successfully", status: data.status };
   }
 
-  return null
+  return {
+    message: data.message || "Registration failed",
+    status: data.status,
+  };
 }
 
 export async function logout(): Promise<void> {
-  const cookie = await cookies()
+  const cookie = await cookies();
 
-  cookie.delete("auth_token")
+  cookie.delete("auth_token");
 }
 
-// export async function hasPermission(resource: string, action: string): Promise<boolean> {
-//   const user = await getCurrentUser()
+export async function hasPermissions(
+  actions: string[],
+  resources: string[]
+): Promise<boolean> {
+  try {
+    const token = (await cookies()).get("auth_token")?.value;
 
-//   if (!user) {
-//     return false
-//   }
+    const res = await fetch(`${backendUrl}/api/auth/checkPermissions`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({ token, actions, resources }),
+    });
+    const data = (await res.json()) as BackendResponse<boolean>;
 
-//   // In a real application, this would check against a permissions database
-//   // For this mock, we'll use simple role-based permissions
+    if (!data.ok) {
+      return false;
+    }
 
-//   if (user.role === "administrator") {
-//     return true
-//   }
-
-//   if (user.role === "editor") {
-//     if (resource === "tasks" && ["create", "read", "update"].includes(action)) {
-//       return true
-//     }
-//     if (resource === "projects" && ["read", "update"].includes(action)) {
-//       return true
-//     }
-//     if (resource === "users" && action === "read") {
-//       return true
-//     }
-//   }
-
-//   if (user.role === "viewer") {
-//     if ((resource === "tasks" || resource === "projects" || resource === "users") && action === "read") {
-//       return true
-//     }
-//   }
-
-//   return false
-// }
+    return data.data || false;
+  } catch (error) {
+    console.error("Error fetching current user:", error);
+    return false;
+  }
+}

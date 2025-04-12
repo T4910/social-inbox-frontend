@@ -40,11 +40,6 @@ export function LoginForm() {
       const res = await login(values.email, values.password)
       
       if (res?.status === 200) {
-        const user = await getCurrentUser()
-        console.log(res, user, 'login form')
-        // await logout()
-
-
         router.push("/dashboard")
         router.refresh()
       } else {

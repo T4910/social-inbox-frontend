@@ -1,39 +1,48 @@
-"use client"
+"use client";
 
-import { useSidebar } from "@/components/sidebar-provider"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent } from "@/components/ui/sheet"
-import { getCurrentUser, logout } from "@/lib/auth"
-import { cn } from "@/lib/utils"
-import { useQuery } from "@tanstack/react-query"
-import { CheckSquare, LayoutDashboard, LogOut, Menu, Settings, Users } from "lucide-react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { useSidebar } from "@/components/sidebar-provider";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { useAuth } from "@/hooks/use-auth";
+import { cn } from "@/lib/utils";
+import {
+  CheckSquare,
+  LayoutDashboard,
+  LogOut,
+  Menu,
+  Settings,
+  Users,
+} from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export function AppSidebar() {
-  const { isOpen, toggle, isMobile } = useSidebar()
-  const pathname = usePathname()
+  const { isOpen, toggle, isMobile } = useSidebar();
+  const pathname = usePathname();
 
-  const { data: user } = useQuery({
-    queryKey: ["currentUser"],
-    queryFn: getCurrentUser,
-  })
+  const { user, logOutUser } = useAuth();
 
-  console.log("user", user)
-  const isAdmin = user?.roles[0].name === "administrator"
+  const isAdmin = user?.roles[0].name === "administrator";
 
   const navigation = [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     { name: "Tasks", href: "/tasks", icon: CheckSquare },
-    { name: "Team", href: "/team", icon: Users },
-    ...(isAdmin ? [{ name: "Role Management", href: "/admin/roles", icon: Settings }] : []),
-  ]
+    // { name: "Team", href: "/team", icon: Users },
+    ...(isAdmin
+      ? [{ name: "Role Management", href: "/admin/roles", icon: Settings }]
+      : []),
+  ];
 
   const sidebarContent = (
     <div className="flex h-full flex-col bg-muted/40">
       <div className="flex h-14 items-center border-b px-4">
-        <Button variant="ghost" size="icon" onClick={toggle} className="md:hidden">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={toggle}
+          className="md:hidden"
+        >
           <Menu className="h-5 w-5" />
           <span className="sr-only">Toggle sidebar</span>
         </Button>
@@ -50,7 +59,9 @@ export function AppSidebar() {
               href={item.href}
               className={cn(
                 "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground",
-                pathname === item.href ? "bg-accent text-accent-foreground" : "transparent",
+                pathname === item.href
+                  ? "bg-accent text-accent-foreground"
+                  : "transparent"
               )}
             >
               <item.icon className="h-5 w-5" />
@@ -60,27 +71,34 @@ export function AppSidebar() {
         </nav>
       </div>
       <div className="mt-auto border-t p-4">
-        {user && (
-          <div className="flex items-center gap-3">
-            <Avatar className="h-9 w-9">
-              <AvatarImage src={"user.avata"} alt={user.email} />
-              <AvatarFallback>{user.email}</AvatarFallback>
-            </Avatar>
-            <div className="flex flex-col">
-              <span className="text-sm font-medium">{user.email}</span>
-              <span className="text-xs text-muted-foreground capitalize">{user.roles.map(role => user.roles.length > 1 ? `${role.name} ,` : `${role.name}`)}</span>
-            </div>
-            <Button variant="ghost" size="icon" className="ml-auto" onClick={() => logout()}>
-              {/* <> */}
-                <LogOut className="h-5 w-5" />
-                <span className="sr-only">Log out</span>
-              {/* </> */}
-            </Button>
+        {/* {user && ( */}
+        <div className="flex items-center gap-3">
+          <Avatar className="h-9 w-9">
+            <AvatarImage src={"user.avata"} alt={user?.email} />
+            <AvatarFallback>{user?.email}</AvatarFallback>
+          </Avatar>
+          <div className="flex flex-col">
+            <span className="text-sm font-medium">{user?.email}</span>
+            <span className="text-xs text-muted-foreground capitalize">
+              {user?.roles.map((role) =>
+                user?.roles.length > 1 ? `${role.name} ,` : `${role.name}`
+              )}
+            </span>
           </div>
-        )}
-      </div> 
+          <Button
+            variant="ghost"
+            size="icon"
+            className="ml-auto"
+            onClick={() => logOutUser()}
+          >
+            <LogOut className="h-5 w-5" />
+            <span className="sr-only">Log out</span>
+          </Button>
+        </div>
+        {/* )} */}
+      </div>
     </div>
-  )
+  );
 
   if (isMobile) {
     return (
@@ -89,12 +107,17 @@ export function AppSidebar() {
           {sidebarContent}
         </SheetContent>
       </Sheet>
-    )
+    );
   }
 
   return (
-    <div className={cn("h-screen border-r transition-all duration-300", isOpen ? "w-64" : "w-0")}>
+    <div
+      className={cn(
+        "h-screen border-r transition-all duration-300",
+        isOpen ? "w-64" : "w-0"
+      )}
+    >
       {isOpen && sidebarContent}
     </div>
-  )
+  );
 }

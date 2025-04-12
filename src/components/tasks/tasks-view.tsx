@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import { DashboardHeader } from "@/components/dashboard/dashboard-header"
-import { CreateTaskDialog } from "@/components/tasks/create-task-dialog"
-import { TasksKanban } from "@/components/tasks/tasks-kanban"
-import { TasksTable } from "@/components/tasks/tasks-table"
-import { Button } from "@/components/ui/button"
+import { DashboardHeader } from "@/components/dashboard/dashboard-header";
+import { CreateTaskDialog } from "@/components/tasks/create-task-dialog";
+import { TasksKanban } from "@/components/tasks/tasks-kanban";
+import { TasksTable } from "@/components/tasks/tasks-table";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -12,34 +12,30 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { type User, tasks } from "@/lib/data"
-import { useQuery } from "@tanstack/react-query"
-import { Filter, PlusCircle } from "lucide-react"
-import { useState } from "react"
+} from "@/components/ui/dropdown-menu";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useTask } from "@/hooks/use-task";
+import { type User } from "@/lib/types";
+import { Filter, PlusCircle } from "lucide-react";
+import { useState } from "react";
 
 export function TasksView({ user }: { user: User }) {
-  const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false)
-  const [statusFilter, setStatusFilter] = useState<string[]>([])
-  const [priorityFilter, setPriorityFilter] = useState<string[]>([])
+  const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<string[]>([]);
+  const [priorityFilter, setPriorityFilter] = useState<string[]>([]);
 
-  const { data: allTasks } = useQuery({
-    queryKey: ["tasks"],
-    queryFn: () => tasks,
-    initialData: tasks,
-  })
+  const { tasks: allTasks } = useTask();
 
   // Apply filters
-  const filteredTasks = allTasks.filter((task) => {
+  const filteredTasks = allTasks?.filter((task) => {
     if (statusFilter.length > 0 && !statusFilter.includes(task.status)) {
-      return false
+      return false;
     }
     if (priorityFilter.length > 0 && !priorityFilter.includes(task.priority)) {
-      return false
+      return false;
     }
-    return true
-  })
+    return true;
+  });
 
   return (
     <div className="flex flex-col h-full">
@@ -61,87 +57,103 @@ export function TasksView({ user }: { user: User }) {
                   <DropdownMenuLabel>Status</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuCheckboxItem
-                    checked={statusFilter.includes("todo")}
+                    checked={statusFilter.includes("TODO")}
                     onCheckedChange={(checked) => {
                       if (checked) {
-                        setStatusFilter([...statusFilter, "todo"])
+                        setStatusFilter([...statusFilter, "TODO"]);
                       } else {
-                        setStatusFilter(statusFilter.filter((s) => s !== "todo"))
+                        setStatusFilter(
+                          statusFilter.filter((s) => s !== "TODO")
+                        );
                       }
                     }}
                   >
                     To Do
                   </DropdownMenuCheckboxItem>
                   <DropdownMenuCheckboxItem
-                    checked={statusFilter.includes("in-progress")}
+                    checked={statusFilter.includes("IN_PROGRESS")}
                     onCheckedChange={(checked) => {
                       if (checked) {
-                        setStatusFilter([...statusFilter, "in-progress"])
+                        setStatusFilter([...statusFilter, "IN_PROGRESS"]);
                       } else {
-                        setStatusFilter(statusFilter.filter((s) => s !== "in-progress"))
+                        setStatusFilter(
+                          statusFilter.filter((s) => s !== "IN_PROGRESS")
+                        );
                       }
                     }}
                   >
                     In Progress
                   </DropdownMenuCheckboxItem>
                   <DropdownMenuCheckboxItem
-                    checked={statusFilter.includes("review")}
+                    checked={statusFilter.includes("REVIEW")}
                     onCheckedChange={(checked) => {
                       if (checked) {
-                        setStatusFilter([...statusFilter, "review"])
+                        setStatusFilter([...statusFilter, "REVIEW"]);
                       } else {
-                        setStatusFilter(statusFilter.filter((s) => s !== "review"))
+                        setStatusFilter(
+                          statusFilter.filter((s) => s !== "REVIEW")
+                        );
                       }
                     }}
                   >
                     In Review
                   </DropdownMenuCheckboxItem>
                   <DropdownMenuCheckboxItem
-                    checked={statusFilter.includes("done")}
+                    checked={statusFilter.includes("DONE")}
                     onCheckedChange={(checked) => {
                       if (checked) {
-                        setStatusFilter([...statusFilter, "done"])
+                        setStatusFilter([...statusFilter, "DONE"]);
                       } else {
-                        setStatusFilter(statusFilter.filter((s) => s !== "done"))
+                        setStatusFilter(
+                          statusFilter.filter((s) => s !== "DONE")
+                        );
                       }
                     }}
                   >
                     Done
                   </DropdownMenuCheckboxItem>
 
-                  <DropdownMenuLabel className="mt-2">Priority</DropdownMenuLabel>
+                  <DropdownMenuLabel className="mt-2">
+                    Priority
+                  </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuCheckboxItem
-                    checked={priorityFilter.includes("high")}
+                    checked={priorityFilter.includes("HIGH")}
                     onCheckedChange={(checked) => {
                       if (checked) {
-                        setPriorityFilter([...priorityFilter, "high"])
+                        setPriorityFilter([...priorityFilter, "HIGH"]);
                       } else {
-                        setPriorityFilter(priorityFilter.filter((p) => p !== "high"))
+                        setPriorityFilter(
+                          priorityFilter.filter((p) => p !== "HIGH")
+                        );
                       }
                     }}
                   >
                     High
                   </DropdownMenuCheckboxItem>
                   <DropdownMenuCheckboxItem
-                    checked={priorityFilter.includes("medium")}
+                    checked={priorityFilter.includes("MEDIUM")}
                     onCheckedChange={(checked) => {
                       if (checked) {
-                        setPriorityFilter([...priorityFilter, "medium"])
+                        setPriorityFilter([...priorityFilter, "MEDIUM"]);
                       } else {
-                        setPriorityFilter(priorityFilter.filter((p) => p !== "medium"))
+                        setPriorityFilter(
+                          priorityFilter.filter((p) => p !== "MEDIUM")
+                        );
                       }
                     }}
                   >
                     Medium
                   </DropdownMenuCheckboxItem>
                   <DropdownMenuCheckboxItem
-                    checked={priorityFilter.includes("low")}
+                    checked={priorityFilter.includes("LOW")}
                     onCheckedChange={(checked) => {
                       if (checked) {
-                        setPriorityFilter([...priorityFilter, "low"])
+                        setPriorityFilter([...priorityFilter, "LOW"]);
                       } else {
-                        setPriorityFilter(priorityFilter.filter((p) => p !== "low"))
+                        setPriorityFilter(
+                          priorityFilter.filter((p) => p !== "LOW")
+                        );
                       }
                     }}
                   >
@@ -164,17 +176,21 @@ export function TasksView({ user }: { user: User }) {
             </TabsList>
 
             <TabsContent value="table">
-              <TasksTable tasks={filteredTasks} />
+              {filteredTasks && <TasksTable tasks={filteredTasks} />}
             </TabsContent>
 
             <TabsContent value="kanban">
-              <TasksKanban tasks={filteredTasks} />
+              {filteredTasks && <TasksKanban tasks={filteredTasks} />}
             </TabsContent>
           </Tabs>
         </div>
       </div>
 
-      <CreateTaskDialog open={isCreateTaskOpen} onOpenChange={setIsCreateTaskOpen} userId={user.id} />
+      <CreateTaskDialog
+        open={isCreateTaskOpen}
+        onOpenChange={setIsCreateTaskOpen}
+        userId={user.id}
+      />
     </div>
-  )
+  );
 }

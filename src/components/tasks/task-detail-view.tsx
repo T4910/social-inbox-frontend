@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { DashboardHeader } from "@/components/dashboard/dashboard-header"
+import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,47 +11,47 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Separator } from "@/components/ui/separator"
-import { Textarea } from "@/components/ui/textarea"
-import { useToast } from "@/components/ui/use-toast"
-import { hasPermission } from "@/lib/auth"
-import { type Comment, getUserById, type Task, tasks, type User, users } from "@/lib/data"
-import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { format } from "date-fns"
-import { ArrowLeft, MessageSquare, Trash2 } from "lucide-react"
-import { useRouter } from "next/navigation"
-import { useState } from "react"
+} from "@/components/ui/alert-dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/components/ui/use-toast";
+import { useCheckPermissions } from "@/hooks/use-auth";
+import { useTask } from "@/hooks/use-task";
+import { getUserById, useUsers } from "@/hooks/use-users";
+import { addCommentToTask, deleteTask } from "@/lib/tasks";
+import { type Task, type User } from "@/lib/types";
+import { format } from "date-fns";
+import { ArrowLeft, MessageSquare, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 interface TaskDetailViewProps {
-  taskId: string
-  user: User
+  taskId: string;
+  user: User;
 }
 
 export function TaskDetailView({ taskId, user }: TaskDetailViewProps) {
-  const router = useRouter()
-  const { toast } = useToast()
-  const queryClient = useQueryClient()
-  const [newComment, setNewComment] = useState("")
+  const router = useRouter();
+  const { toast } = useToast();
 
-  const { data: task } = useQuery({
-    queryKey: ["task", taskId],
-    queryFn: () => tasks.find((t) => t.id === taskId),
-  })
+  const [newComment, setNewComment] = useState("");
 
-  const { data: canEdit } = useQuery({
-    queryKey: ["permissions", "tasks", "update"],
-    queryFn: () => hasPermission("tasks", "update"),
-  })
+  const { getTaskById, updateTask } = useTask();
+  const { task } = getTaskById(taskId);
+  const { users } = useUsers();
 
-  const { data: canDelete } = useQuery({
-    queryKey: ["permissions", "tasks", "delete"],
-    queryFn: () => hasPermission("tasks", "delete"),
-  })
+  const { isAllowed: canEdit } = useCheckPermissions(["update"], ["tasks"]);
+  const { isAllowed: canDelete } = useCheckPermissions(["delete"], ["tasks"]);
 
   if (!task) {
     return (
@@ -66,102 +66,71 @@ export function TaskDetailView({ taskId, user }: TaskDetailViewProps) {
           </div>
           <div className="mt-16 text-center">
             <h2 className="text-2xl font-bold">Task not found</h2>
-            <p className="text-muted-foreground">The task you{"'"}re looking for doesn{"'"}t exist or has been deleted.</p>
+            <p className="text-muted-foreground">
+              The task you{"'"}re looking for doesn{"'"}t exist or has been
+              deleted.
+            </p>
           </div>
         </div>
       </div>
-    )
+    );
   }
 
-  const assignee = task.assigneeId ? getUserById(task.assigneeId) : null
-  const creator = getUserById(task.createdById)
+  const assignee = task.assigneeId ? getUserById(task.assigneeId).user : null;
+  const creator = getUserById(task.createdById).user;
 
-  const handleStatusChange = (status: string) => {
-    // In a real app, this would be an API call
-    const taskIndex = tasks.findIndex((t) => t.id === task.id)
-    if (taskIndex !== -1) {
-      tasks[taskIndex].status = status as Task["status"]
-      queryClient.invalidateQueries({ queryKey: ["task", taskId] })
-      queryClient.invalidateQueries({ queryKey: ["tasks"] })
+  const handleStatusChange = (status: Task["status"]) => {
+    updateTask({ ...task, status });
 
-      toast({
-        title: "Status updated",
-        description: `Task status changed to ${status}`,
-      })
-    }
-  }
+    toast({
+      title: "Status updated",
+      description: `Task status changed to ${status}`,
+    });
+  };
 
-  const handlePriorityChange = (priority: string) => {
-    // In a real app, this would be an API call
-    const taskIndex = tasks.findIndex((t) => t.id === task.id)
-    if (taskIndex !== -1) {
-      tasks[taskIndex].priority = priority as Task["priority"]
-      queryClient.invalidateQueries({ queryKey: ["task", taskId] })
-      queryClient.invalidateQueries({ queryKey: ["tasks"] })
+  const handlePriorityChange = (priority: Task["priority"]) => {
+    updateTask({ ...task, priority });
 
-      toast({
-        title: "Priority updated",
-        description: `Task priority changed to ${priority}`,
-      })
-    }
-  }
+    toast({
+      title: "Priority updated",
+      description: `Task priority changed to ${priority}`,
+    });
+  };
 
   const handleAssigneeChange = (assigneeId: string) => {
-    // In a real app, this would be an API call
-    const taskIndex = tasks.findIndex((t) => t.id === task.id)
-    if (taskIndex !== -1) {
-      tasks[taskIndex].assigneeId = assigneeId
-      queryClient.invalidateQueries({ queryKey: ["task", taskId] })
-      queryClient.invalidateQueries({ queryKey: ["tasks"] })
+    updateTask({ ...task, assigneeId: assigneeId || null });
 
-      const assignee = getUserById(assigneeId)
-      toast({
-        title: "Assignee updated",
-        description: `Task assigned to ${assignee?.name}`,
-      })
-    }
-  }
+    const { user: assignee } = getUserById(assigneeId);
+    toast({
+      title: "Assignee updated",
+      description: `Task assigned to ${assignee?.email}`,
+    });
+  };
 
   const handleAddComment = () => {
-    if (!newComment.trim()) return
+    if (!newComment.trim()) return;
 
-    // In a real app, this would be an API call
-    const taskIndex = tasks.findIndex((t) => t.id === task.id)
-    if (taskIndex !== -1) {
-      const comment: Comment = {
-        id: `comment-${Date.now()}`,
-        taskId: task.id,
-        userId: user.id,
-        content: newComment,
-        createdAt: new Date().toISOString(),
-      }
-
-      tasks[taskIndex].comments.push(comment)
-      queryClient.invalidateQueries({ queryKey: ["task", taskId] })
-
-      setNewComment("")
+    addCommentToTask(task.id, {
+      userId: user.id,
+      content: newComment,
+    }).then(() => {
+      setNewComment("");
       toast({
         title: "Comment added",
         description: "Your comment has been added to the task",
-      })
-    }
-  }
+      });
+    });
+  };
 
   const handleDeleteTask = () => {
-    // In a real app, this would be an API call
-    const taskIndex = tasks.findIndex((t) => t.id === task.id)
-    if (taskIndex !== -1) {
-      tasks.splice(taskIndex, 1)
-      queryClient.invalidateQueries({ queryKey: ["tasks"] })
-
+    deleteTask(task.id).then(() => {
       toast({
         title: "Task deleted",
         description: "The task has been deleted successfully",
-      })
-
-      router.push("/tasks")
-    }
-  }
+      });
+      router.push("/tasks");
+    });
+  };
 
   return (
     <div className="flex flex-col h-full">
@@ -192,12 +161,15 @@ export function TaskDetailView({ taskId, user }: TaskDetailViewProps) {
                     <AlertDialogHeader>
                       <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                       <AlertDialogDescription>
-                        This action cannot be undone. This will permanently delete the task.
+                        This action cannot be undone. This will permanently
+                        delete the task.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={handleDeleteTask}>Delete</AlertDialogAction>
+                      <AlertDialogAction onClick={handleDeleteTask}>
+                        Delete
+                      </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
@@ -208,8 +180,10 @@ export function TaskDetailView({ taskId, user }: TaskDetailViewProps) {
               <div className="md:col-span-2">
                 <div className="rounded-md border p-4">
                   <h2 className="font-semibold mb-2">Description</h2>
-                  <p className="text-muted-foreground whitespace-pre-line">{task.description}</p>
-
+                  <p className="text-muted-foreground whitespace-pre-line">
+                    {task.description}
+                  </p>
+                  {/* 
                   {task.tags.length > 0 && (
                     <div className="mt-4 flex flex-wrap gap-2">
                       {task.tags.map((tag) => (
@@ -218,7 +192,7 @@ export function TaskDetailView({ taskId, user }: TaskDetailViewProps) {
                         </Badge>
                       ))}
                     </div>
-                  )}
+                  )} */}
                 </div>
               </div>
 
@@ -227,43 +201,54 @@ export function TaskDetailView({ taskId, user }: TaskDetailViewProps) {
                   <>
                     <div className="rounded-md border p-4">
                       <h2 className="font-semibold mb-2">Status</h2>
-                      <Select defaultValue={task.status} onValueChange={handleStatusChange}>
+                      <Select
+                        defaultValue={task.status}
+                        onValueChange={handleStatusChange}
+                      >
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="todo">To Do</SelectItem>
-                          <SelectItem value="in-progress">In Progress</SelectItem>
-                          <SelectItem value="review">In Review</SelectItem>
-                          <SelectItem value="done">Done</SelectItem>
+                          <SelectItem value="PENDING">To Do</SelectItem>
+                          <SelectItem value="IN_PROGRESS">
+                            In Progress
+                          </SelectItem>
+                          <SelectItem value="REVIEW">In Review</SelectItem>
+                          <SelectItem value="DONE">Done</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
 
                     <div className="rounded-md border p-4">
                       <h2 className="font-semibold mb-2">Priority</h2>
-                      <Select defaultValue={task.priority} onValueChange={handlePriorityChange}>
+                      <Select
+                        defaultValue={task.priority}
+                        onValueChange={handlePriorityChange}
+                      >
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="low">Low</SelectItem>
-                          <SelectItem value="medium">Medium</SelectItem>
-                          <SelectItem value="high">High</SelectItem>
+                          <SelectItem value="LOW">Low</SelectItem>
+                          <SelectItem value="MEDIUM">Medium</SelectItem>
+                          <SelectItem value="HIGH">High</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
 
                     <div className="rounded-md border p-4">
                       <h2 className="font-semibold mb-2">Assignee</h2>
-                      <Select defaultValue={task.assigneeId || ""} onValueChange={handleAssigneeChange}>
+                      <Select
+                        defaultValue={task.assigneeId || ""}
+                        onValueChange={handleAssigneeChange}
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="Unassigned" />
                         </SelectTrigger>
                         <SelectContent>
-                          {users.map((user) => (
+                          {users?.map((user) => (
                             <SelectItem key={user.id} value={user.id}>
-                              {user.name}
+                              {user.email}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -291,13 +276,20 @@ export function TaskDetailView({ taskId, user }: TaskDetailViewProps) {
                       {assignee ? (
                         <div className="flex items-center gap-2">
                           <Avatar className="h-6 w-6">
-                            <AvatarImage src={"assignee.avatar"} alt={assignee.name} />
-                            <AvatarFallback>{assignee.name.charAt(0)}</AvatarFallback>
+                            <AvatarImage
+                              src={"assignee.avatar"}
+                              alt={assignee?.email}
+                            />
+                            <AvatarFallback>
+                              {assignee?.email.charAt(0)}
+                            </AvatarFallback>
                           </Avatar>
-                          <span>{assignee.name}</span>
+                          <span>{assignee?.email}</span>
                         </div>
                       ) : (
-                        <span className="text-muted-foreground">Unassigned</span>
+                        <span className="text-muted-foreground">
+                          Unassigned
+                        </span>
                       )}
                     </div>
                   </>
@@ -306,7 +298,9 @@ export function TaskDetailView({ taskId, user }: TaskDetailViewProps) {
                 <div className="rounded-md border p-4">
                   <h2 className="font-semibold mb-2">Due Date</h2>
                   {task.dueDate ? (
-                    <span>{format(new Date(task.dueDate), "MMMM d, yyyy")}</span>
+                    <span>
+                      {format(new Date(task.dueDate), "MMMM d, yyyy")}
+                    </span>
                   ) : (
                     <span className="text-muted-foreground">No due date</span>
                   )}
@@ -317,10 +311,15 @@ export function TaskDetailView({ taskId, user }: TaskDetailViewProps) {
                   {creator && (
                     <div className="flex items-center gap-2">
                       <Avatar className="h-6 w-6">
-                        <AvatarImage src={"creator.avatar"} alt={creator.name} />
-                        <AvatarFallback>{creator.name.charAt(0)}</AvatarFallback>
+                        <AvatarImage
+                          src={"creator.avatar"}
+                          alt={creator?.email}
+                        />
+                        <AvatarFallback>
+                          {creator?.email.charAt(0)}
+                        </AvatarFallback>
                       </Avatar>
-                      <span>{creator.name}</span>
+                      <span>{creator?.email}</span>
                     </div>
                   )}
                   <div className="mt-2 text-sm text-muted-foreground">
@@ -337,38 +336,50 @@ export function TaskDetailView({ taskId, user }: TaskDetailViewProps) {
 
               <div className="space-y-4 mb-6">
                 {task.comments.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">No comments yet</div>
+                  <div className="text-center py-8 text-muted-foreground">
+                    No comments yet
+                  </div>
                 ) : (
                   task.comments.map((comment) => {
-                    const commentUser = getUserById(comment.userId)
+                    const { user: commentUser } = getUserById(comment.userId);
 
                     return (
                       <div key={comment.id} className="flex gap-3">
                         {commentUser && (
                           <Avatar className="h-8 w-8">
-                            <AvatarImage src={"commentUser.avatar"} alt={commentUser.name} />
-                            <AvatarFallback>{commentUser.name.charAt(0)}</AvatarFallback>
+                            <AvatarImage
+                              src={"commentUser.avatar"}
+                              alt={commentUser?.email}
+                            />
+                            <AvatarFallback>
+                              {commentUser?.email.charAt(0)}
+                            </AvatarFallback>
                           </Avatar>
                         )}
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
-                            <span className="font-medium">{commentUser?.name}</span>
+                            <span className="font-medium">
+                              {commentUser?.email}
+                            </span>
                             <span className="text-xs text-muted-foreground">
-                              {format(new Date(comment.createdAt), "MMM d, yyyy 'at' h:mm a")}
+                              {format(
+                                new Date(comment.createdAt),
+                                "MMM d, yyyy 'at' h:mm a"
+                              )}
                             </span>
                           </div>
                           <p className="mt-1">{comment.content}</p>
                         </div>
                       </div>
-                    )
+                    );
                   })
                 )}
               </div>
 
               <div className="flex gap-3">
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={"user.avatar"} alt={user.name} />
-                  <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                  <AvatarImage src={"user.avatar"} alt={user.email} />
+                  <AvatarFallback>{user.email.charAt(0)}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1 space-y-2">
                   <Textarea
@@ -376,7 +387,10 @@ export function TaskDetailView({ taskId, user }: TaskDetailViewProps) {
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
                   />
-                  <Button onClick={handleAddComment} disabled={!newComment.trim()}>
+                  <Button
+                    onClick={handleAddComment}
+                    disabled={!newComment.trim()}
+                  >
                     <MessageSquare className="mr-2 h-4 w-4" />
                     Comment
                   </Button>
@@ -387,45 +401,54 @@ export function TaskDetailView({ taskId, user }: TaskDetailViewProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 function StatusBadge({ status }: { status: Task["status"] }) {
   switch (status) {
-    case "todo":
-      return <Badge variant="outline">To Do</Badge>
-    case "in-progress":
-      return <Badge variant="secondary">In Progress</Badge>
-    case "review":
+    case "PENDING":
+      return <Badge variant="outline">To Do</Badge>;
+    case "IN_PROGRESS":
+      return <Badge variant="secondary">In Progress</Badge>;
+    case "REVIEW":
       return (
-        <Badge variant="outline" className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
+        <Badge
+          variant="outline"
+          className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300"
+        >
           In Review
         </Badge>
-      )
-    case "done":
+      );
+    case "DONE":
       return (
-        <Badge variant="outline" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
+        <Badge
+          variant="outline"
+          className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
+        >
           Done
         </Badge>
-      )
+      );
     default:
-      return null
+      return null;
   }
 }
 
 function PriorityBadge({ priority }: { priority: Task["priority"] }) {
   switch (priority) {
-    case "high":
-      return <Badge variant="destructive">High</Badge>
-    case "medium":
+    case "HIGH":
+      return <Badge variant="destructive">High</Badge>;
+    case "MEDIUM":
       return (
-        <Badge variant="outline" className="bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300">
+        <Badge
+          variant="outline"
+          className="bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300"
+        >
           Medium
         </Badge>
-      )
-    case "low":
-      return <Badge variant="outline">Low</Badge>
+      );
+    case "LOW":
+      return <Badge variant="outline">Low</Badge>;
     default:
-      return null
+      return null;
   }
 }

@@ -1,26 +1,22 @@
-import { AppSidebar } from "@/components/app-sidebar"
-import { getCurrentUser } from "@/lib/auth"
-import { redirect } from "next/navigation"
-
+import { AppSidebar } from "@/components/app-sidebar";
+import { getCurrentUser } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
 export default async function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode
+  children: React.ReactNode;
 }>) {
-
-  const user = await getCurrentUser()
+  const user = await getCurrentUser();
 
   if (!user) {
-    redirect("/login")
+    redirect("/login");
   }
 
   return (
-    <>
-        <AppSidebar />
-        {children}
-    </>
-  )
+    <div className="flex h-screen">
+      <AppSidebar />
+      <main className="flex-1 overflow-auto">{children}</main>
+    </div>
+  );
 }
-
-

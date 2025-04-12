@@ -1,39 +1,38 @@
-"use client"
+"use client";
 
-import { DashboardHeader } from "@/components/dashboard/dashboard-header"
-import { ProjectList } from "@/components/dashboard/project-list"
-import { TaskSummary } from "@/components/dashboard/task-summary"
-import { CreateTaskDialog } from "@/components/tasks/create-task-dialog"
-import { TaskList } from "@/components/tasks/task-list"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { type User, getProjectsByMemberId, getTasksByAssigneeId, projects, tasks } from "@/lib/data"
-import { useQuery } from "@tanstack/react-query"
-import { PlusCircle } from "lucide-react"
-import { useState } from "react"
+import { DashboardHeader } from "@/components/dashboard/dashboard-header";
+import { TaskSummary } from "@/components/dashboard/task-summary";
+import { CreateTaskDialog } from "@/components/tasks/create-task-dialog";
+import { TaskList } from "@/components/tasks/task-list";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAssignedTask } from "@/hooks/use-task";
+import { type User } from "@/lib/types";
+import { PlusCircle } from "lucide-react";
+import { useState } from "react";
 
 export function DashboardView({ user }: { user: User }) {
-  const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false)
+  const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
 
-  const { data: userTasks } = useQuery({
-    queryKey: ["tasks", user.id],
-    queryFn: () => getTasksByAssigneeId(user.id),
-    initialData: tasks.filter((task) => task.assigneeId === user.id),
-  })
+  const { tasks: userTasks } = useAssignedTask(user.id);
 
-  const { data: userProjects } = useQuery({
-    queryKey: ["projects", user.id],
-    queryFn: () => getProjectsByMemberId(user.id),
-    initialData: projects.filter((project) => project.members.includes(user.id)),
-  })
+  const todoTasks = userTasks?.filter((task) => task.status === "PENDING");
+  const inProgressTasks = userTasks?.filter(
+    (task) => task.status === "IN_PROGRESS"
+  );
+  const reviewTasks = userTasks?.filter((task) => task.status === "REVIEW");
+  const completedTasks = userTasks?.filter((task) => task.status === "DONE");
 
-  const todoTasks = userTasks.filter((task) => task.status === "todo")
-  const inProgressTasks = userTasks.filter((task) => task.status === "in-progress")
-  const reviewTasks = userTasks.filter((task) => task.status === "review")
-  const completedTasks = userTasks.filter((task) => task.status === "done")
-
-  const highPriorityTasks = userTasks.filter((task) => task.priority === "high" && task.status !== "done")
+  const highPriorityTasks = userTasks?.filter(
+    (task) => task.priority === "HIGH" && task.status !== "DONE"
+  );
 
   return (
     <div className="flex flex-col h-full">
@@ -50,56 +49,47 @@ export function DashboardView({ user }: { user: User }) {
           </div>
 
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <TaskSummary title="To Do" count={todoTasks.length} />
-            <TaskSummary title="In Progress" count={inProgressTasks.length} />
-            <TaskSummary title="In Review" count={reviewTasks.length} />
-            <TaskSummary title="Completed" count={completedTasks.length} />
+            <TaskSummary title="To Do" count={todoTasks?.length || 0} />
+            <TaskSummary
+              title="In Progress"
+              count={inProgressTasks?.length || 0}
+            />
+            <TaskSummary title="In Review" count={reviewTasks?.length || 0} />
+            <TaskSummary
+              title="Completed"
+              count={completedTasks?.length || 0}
+            />
           </div>
 
-          <Tabs defaultValue="tasks" className="space-y-4">
-            <TabsList>
-              <TabsTrigger value="tasks">My Tasks</TabsTrigger>
-              <TabsTrigger value="projects">My Projects</TabsTrigger>
-            </TabsList>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle>High Priority Tasks</CardTitle>
+              <CardDescription>
+                Tasks that need your immediate attention
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <TaskList tasks={highPriorityTasks ?? []} />
+            </CardContent>
+          </Card>
 
-            <TabsContent value="tasks" className="space-y-4">
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle>High Priority Tasks</CardTitle>
-                  <CardDescription>Tasks that need your immediate attention</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <TaskList tasks={highPriorityTasks} />
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle>All Tasks</CardTitle>
-                  <CardDescription>All tasks assigned to you</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <TaskList tasks={userTasks} />
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="projects" className="space-y-4">
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle>My Projects</CardTitle>
-                  <CardDescription>Projects you are a member of</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ProjectList projects={userProjects} />
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle>All Tasks</CardTitle>
+              <CardDescription>All tasks assigned to you</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <TaskList tasks={userTasks ?? []} />
+            </CardContent>
+          </Card>
         </div>
       </div>
 
-      <CreateTaskDialog open={isCreateTaskOpen} onOpenChange={setIsCreateTaskOpen} userId={user.id} />
+      <CreateTaskDialog
+        open={isCreateTaskOpen}
+        onOpenChange={setIsCreateTaskOpen}
+        userId={user.id}
+      />
     </div>
-  )
+  );
 }

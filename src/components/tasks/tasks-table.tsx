@@ -1,64 +1,82 @@
-"use client"
+"use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { type Task, getUserById } from "@/lib/data"
-import { format } from "date-fns"
-import { ChevronDown, ChevronUp } from "lucide-react"
-import Link from "next/link"
-import { useState } from "react"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { getUserById, useUsers } from "@/hooks/use-users";
+import { type Task } from "@/lib/types";
+import { format } from "date-fns";
+import { ChevronDown, ChevronUp } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
 
 interface TasksTableProps {
-  tasks: Task[]
+  tasks: Task[];
 }
 
-type SortField = "title" | "status" | "priority" | "dueDate" | "assigneeId"
-type SortDirection = "asc" | "desc"
+type SortField = "title" | "status" | "priority" | "dueDate" | "assigneeId";
+type SortDirection = "asc" | "desc";
 
 export function TasksTable({ tasks }: TasksTableProps) {
-  const [sortField, setSortField] = useState<SortField>("dueDate")
-  const [sortDirection, setSortDirection] = useState<SortDirection>("asc")
+  // const { user } = getUserById();
+  const [sortField, setSortField] = useState<SortField>("dueDate");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
 
   const handleSort = (field: SortField) => {
     if (field === sortField) {
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc")
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
     } else {
-      setSortField(field)
-      setSortDirection("asc")
+      setSortField(field);
+      setSortDirection("asc");
     }
-  }
+  };
 
   const sortedTasks = [...tasks].sort((a, b) => {
-    const direction = sortDirection === "asc" ? 1 : -1
+    const direction = sortDirection === "asc" ? 1 : -1;
 
     switch (sortField) {
       case "title":
-        return a.title.localeCompare(b.title) * direction
+        return a.title.localeCompare(b.title) * direction;
       case "status":
-        return a.status.localeCompare(b.status) * direction
+        return a.status.localeCompare(b.status) * direction;
       case "priority":
-        const priorityOrder = { high: 0, medium: 1, low: 2 }
-        return (priorityOrder[a.priority] - priorityOrder[b.priority]) * direction
+        const priorityOrder = { HIGH: 0, MEDIUM: 1, LOW: 2 };
+        return (
+          (priorityOrder[a.priority] - priorityOrder[b.priority]) * direction
+        );
       case "dueDate":
-        if (!a.dueDate) return direction
-        if (!b.dueDate) return -direction
-        return (new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()) * direction
+        if (!a.dueDate) return direction;
+        if (!b.dueDate) return -direction;
+        return (
+          (new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()) *
+          direction
+        );
       case "assigneeId":
-        if (!a.assigneeId) return direction
-        if (!b.assigneeId) return -direction
-        return a.assigneeId.localeCompare(b.assigneeId) * direction
+        if (!a.assigneeId) return direction;
+        if (!b.assigneeId) return -direction;
+        return a.assigneeId.localeCompare(b.assigneeId) * direction;
       default:
-        return 0
+        return 0;
     }
-  })
+  });
 
   const renderSortIcon = (field: SortField) => {
-    if (field !== sortField) return null
+    if (field !== sortField) return null;
 
-    return sortDirection === "asc" ? <ChevronUp className="ml-1 h-4 w-4" /> : <ChevronDown className="ml-1 h-4 w-4" />
-  }
+    return sortDirection === "asc" ? (
+      <ChevronUp className="ml-1 h-4 w-4" />
+    ) : (
+      <ChevronDown className="ml-1 h-4 w-4" />
+    );
+  };
 
   if (tasks.length === 0) {
     return (
@@ -67,7 +85,7 @@ export function TasksTable({ tasks }: TasksTableProps) {
           <p className="text-sm text-muted-foreground">No tasks found</p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -76,7 +94,11 @@ export function TasksTable({ tasks }: TasksTableProps) {
         <TableHeader>
           <TableRow>
             <TableHead className="w-[300px]">
-              <Button variant="ghost" className="flex items-center p-0 font-medium" onClick={() => handleSort("title")}>
+              <Button
+                variant="ghost"
+                className="flex items-center p-0 font-medium"
+                onClick={() => handleSort("title")}
+              >
                 Title {renderSortIcon("title")}
               </Button>
             </TableHead>
@@ -120,7 +142,9 @@ export function TasksTable({ tasks }: TasksTableProps) {
         </TableHeader>
         <TableBody>
           {sortedTasks.map((task) => {
-            const assignee = task.assigneeId ? getUserById(task.assigneeId) : null
+            const assignee = task.assigneeId
+              ? getUserById(task.assigneeId).user
+              : null;
 
             return (
               <TableRow key={task.id}>
@@ -139,10 +163,15 @@ export function TasksTable({ tasks }: TasksTableProps) {
                   {assignee ? (
                     <div className="flex items-center gap-2">
                       <Avatar className="h-6 w-6">
-                        <AvatarImage src={"assignee.avatar"} alt={assignee.name} />
-                        <AvatarFallback>{assignee.name.charAt(0)}</AvatarFallback>
+                        <AvatarImage
+                          src={"assignee.avatar"}
+                          alt={assignee.email}
+                        />
+                        <AvatarFallback>
+                          {assignee.email.charAt(0)}
+                        </AvatarFallback>
                       </Avatar>
-                      <span>{assignee.name}</span>
+                      <span>{assignee.email}</span>
                     </div>
                   ) : (
                     <span className="text-muted-foreground">Unassigned</span>
@@ -156,50 +185,59 @@ export function TasksTable({ tasks }: TasksTableProps) {
                   )}
                 </TableCell>
               </TableRow>
-            )
+            );
           })}
         </TableBody>
       </Table>
     </div>
-  )
+  );
 }
 
 function StatusBadge({ status }: { status: Task["status"] }) {
   switch (status) {
-    case "todo":
-      return <Badge variant="outline">To Do</Badge>
-    case "in-progress":
-      return <Badge variant="secondary">In Progress</Badge>
-    case "review":
+    case "PENDING":
+      return <Badge variant="outline">To Do</Badge>;
+    case "IN_PROGRESS":
+      return <Badge variant="secondary">In Progress</Badge>;
+    case "REVIEW":
       return (
-        <Badge variant="outline" className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
+        <Badge
+          variant="outline"
+          className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300"
+        >
           In Review
         </Badge>
-      )
-    case "done":
+      );
+    case "DONE":
       return (
-        <Badge variant="outline" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
+        <Badge
+          variant="outline"
+          className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
+        >
           Done
         </Badge>
-      )
+      );
     default:
-      return null
+      return null;
   }
 }
 
 function PriorityBadge({ priority }: { priority: Task["priority"] }) {
   switch (priority) {
-    case "high":
-      return <Badge variant="destructive">High</Badge>
-    case "medium":
+    case "HIGH":
+      return <Badge variant="destructive">High</Badge>;
+    case "MEDIUM":
       return (
-        <Badge variant="outline" className="bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300">
+        <Badge
+          variant="outline"
+          className="bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300"
+        >
           Medium
         </Badge>
-      )
-    case "low":
-      return <Badge variant="outline">Low</Badge>
+      );
+    case "LOW":
+      return <Badge variant="outline">Low</Badge>;
     default:
-      return null
+      return null;
   }
 }
