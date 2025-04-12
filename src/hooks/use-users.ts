@@ -1,6 +1,5 @@
 import { type User } from "@/lib/types";
 import {
-  // createUser,
   deleteUser,
   getAllUsers,
   getUserById as getUserByIdServer,
@@ -66,7 +65,7 @@ export function useUsers() {
   };
 }
 
-export const getUserById = (id: string) => {
+export const useUserById = (id: string) => {
   const queryClient = useQueryClient();
   const allUsers = queryClient.getQueryData<User[]>(["users"]);
 

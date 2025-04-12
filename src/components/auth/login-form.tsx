@@ -1,28 +1,42 @@
-"use client"
+"use client";
 
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { getCurrentUser, login, logout } from "@/lib/auth"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { AlertCircle } from "lucide-react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { useState } from "react"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { login } from "@/lib/auth";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { AlertCircle } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
   password: z.string().min(1, { message: "Password is required" }),
-})
+});
 
 export function LoginForm() {
-  const router = useRouter()
-  const [error, setError] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -30,25 +44,25 @@ export function LoginForm() {
       email: "",
       password: "",
     },
-  })
+  });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsLoading(true)
-    setError(null)
+    setIsLoading(true);
+    setError(null);
 
     try {
-      const res = await login(values.email, values.password)
-      
+      const res = await login(values.email, values.password);
+
       if (res?.status === 200) {
-        router.push("/dashboard")
-        router.refresh()
+        router.push("/dashboard");
+        router.refresh();
       } else {
-        setError(res?.message || "An error occurred. Please try again.")
+        setError(res?.message || "An error occurred. Please try again.");
       }
     } catch (error) {
-      setError(`An error occurred. Please try again. ${error}`)
+      setError(`An error occurred. Please try again. ${error}`);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   }
 
@@ -103,12 +117,17 @@ export function LoginForm() {
         </Form>
       </CardContent>
       <CardFooter className="flex flex-col items-center text-sm text-muted-foreground">
-        Demo Accounts: 
+        Demo Accounts:
         <p>{"(email: admin@taiwo.com, password: admin@taiwo.com)"}</p>
         <p>{"(email: editor@taiwo.com, password: editor@taiwo.com)"}</p>
         <p>{"(email: viewer@taiwo.com, password: viewer@taiwo.com)"}</p>
-        <p className="mt-4">Don{"'"}t have an account, <Link className=" text-orange-400 underline" href="/signup">Sign up</Link></p>
+        <p className="mt-4">
+          Don{"'"}t have an account,{" "}
+          <Link className=" text-orange-400 underline" href="/signup">
+            Sign up
+          </Link>
+        </p>
       </CardFooter>
     </Card>
-  )
+  );
 }

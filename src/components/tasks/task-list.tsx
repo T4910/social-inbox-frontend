@@ -1,15 +1,25 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { getUserById, useUsers } from "@/hooks/use-users";
+import { useUsers } from "@/hooks/use-users";
 import { type Task } from "@/lib/types";
 import { format } from "date-fns";
 import Link from "next/link";
+import { useMemo } from "react";
 
 interface TaskListProps {
   tasks: Task[];
 }
 
 export function TaskList({ tasks }: TaskListProps) {
+  // Get all users at the component level
+  const { users: allUsers } = useUsers();
+
+  // Create a memoized map of assignees for performance
+  const assigneeMap = useMemo(() => {
+    if (!allUsers) return new Map();
+    return new Map(allUsers.map((user) => [user.id, user]));
+  }, [allUsers]);
+
   if (tasks.length === 0) {
     return (
       <div className="flex h-[200px] items-center justify-center rounded-md border border-dashed">
@@ -24,7 +34,7 @@ export function TaskList({ tasks }: TaskListProps) {
     <div className="space-y-2">
       {tasks.map((task) => {
         const assignee = task.assigneeId
-          ? getUserById(task.assigneeId).user
+          ? assigneeMap.get(task.assigneeId)
           : null;
 
         return (
@@ -52,11 +62,8 @@ export function TaskList({ tasks }: TaskListProps) {
             {assignee && (
               <div className="flex items-center gap-2">
                 <Avatar className="h-8 w-8">
-                  <AvatarImage
-                    src={"assignee.avatar"}
-                    alt={"assignee?.email"}
-                  />
-                  <AvatarFallback>{"assignee?.name.charAt(0)"}</AvatarFallback>
+                  <AvatarImage src={"assignee.avatar"} alt={assignee.email} />
+                  <AvatarFallback>{assignee.email.charAt(0)}</AvatarFallback>
                 </Avatar>
               </div>
             )}

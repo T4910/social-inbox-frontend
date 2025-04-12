@@ -27,13 +27,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { useCheckPermissions } from "@/hooks/use-auth";
 import { useTask } from "@/hooks/use-task";
-import { getUserById, useUsers } from "@/hooks/use-users";
+import { useUsers } from "@/hooks/use-users";
 import { addCommentToTask, deleteTask } from "@/lib/tasks";
 import { type Task, type User } from "@/lib/types";
 import { format } from "date-fns";
 import { ArrowLeft, MessageSquare, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 interface TaskDetailViewProps {
   taskId: string;
@@ -46,12 +46,33 @@ export function TaskDetailView({ taskId, user }: TaskDetailViewProps) {
 
   const [newComment, setNewComment] = useState("");
 
-  const { getTaskById, updateTask } = useTask();
-  const { task } = getTaskById(taskId);
+  const { useTaskById, updateTask } = useTask();
+  const { task } = useTaskById(taskId);
   const { users } = useUsers();
+
+  const userMap = useMemo(() => {
+    if (!users) return new Map();
+    return new Map(users.map((user) => [user.id, user]));
+  }, [users]);
 
   const { isAllowed: canEdit } = useCheckPermissions(["update"], ["tasks"]);
   const { isAllowed: canDelete } = useCheckPermissions(["delete"], ["tasks"]);
+
+  const assignee = task?.assigneeId ? userMap.get(task.assigneeId) : null;
+  const creator = task?.createdById ? userMap.get(task.createdById) : null;
+
+  const commentUsers = useMemo(() => {
+    if (!task?.comments || !userMap) return new Map();
+
+    const commentUserIds = task.comments.map((comment) => comment.userId);
+    const uniqueUserIds = [...new Set(commentUserIds)];
+
+    return new Map(
+      uniqueUserIds
+        .filter((id) => userMap.has(id))
+        .map((id) => [id, userMap.get(id)])
+    );
+  }, [task?.comments, userMap]);
 
   if (!task) {
     return (
@@ -76,9 +97,6 @@ export function TaskDetailView({ taskId, user }: TaskDetailViewProps) {
     );
   }
 
-  const assignee = task.assigneeId ? getUserById(task.assigneeId).user : null;
-  const creator = getUserById(task.createdById).user;
-
   const handleStatusChange = (status: Task["status"]) => {
     updateTask({ ...task, status });
 
@@ -100,10 +118,11 @@ export function TaskDetailView({ taskId, user }: TaskDetailViewProps) {
   const handleAssigneeChange = (assigneeId: string) => {
     updateTask({ ...task, assigneeId: assigneeId || null });
 
-    const { user: assignee } = getUserById(assigneeId);
+    const newAssignee = userMap.get(assigneeId);
+
     toast({
       title: "Assignee updated",
-      description: `Task assigned to ${assignee?.email}`,
+      description: `Task assigned to ${newAssignee?.email || "Unassigned"}`,
     });
   };
 
@@ -183,16 +202,6 @@ export function TaskDetailView({ taskId, user }: TaskDetailViewProps) {
                   <p className="text-muted-foreground whitespace-pre-line">
                     {task.description}
                   </p>
-                  {/* 
-                  {task.tags.length > 0 && (
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      {task.tags.map((tag) => (
-                        <Badge key={tag} variant="secondary">
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
-                  )} */}
                 </div>
               </div>
 
@@ -341,7 +350,7 @@ export function TaskDetailView({ taskId, user }: TaskDetailViewProps) {
                   </div>
                 ) : (
                   task.comments.map((comment) => {
-                    const { user: commentUser } = getUserById(comment.userId);
+                    const commentUser = commentUsers.get(comment.userId);
 
                     return (
                       <div key={comment.id} className="flex gap-3">

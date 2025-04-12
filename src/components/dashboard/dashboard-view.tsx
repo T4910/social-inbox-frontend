@@ -12,7 +12,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAssignedTask } from "@/hooks/use-task";
 import { type User } from "@/lib/types";
 import { PlusCircle } from "lucide-react";

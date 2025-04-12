@@ -9,10 +9,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { getUserById, useUsers } from "@/hooks/use-users";
+import { useUsers } from "@/hooks/use-users";
 import { type Task } from "@/lib/types";
 import { format } from "date-fns";
 import Link from "next/link";
+import { useMemo } from "react";
 
 interface TasksKanbanProps {
   tasks: Task[];
@@ -61,7 +62,14 @@ function KanbanColumn({ title, tasks }: KanbanColumnProps) {
 }
 
 function TaskCard({ task }: { task: Task }) {
-  const assignee = task.assigneeId ? getUserById(task.assigneeId).user : null;
+  const { users: allUsers } = useUsers();
+
+  const userMap = useMemo(() => {
+    if (!allUsers) return new Map();
+    return new Map(allUsers.map((user) => [user.id, user]));
+  }, [allUsers]);
+
+  const assignee = task.assigneeId ? userMap.get(task.assigneeId) : null;
 
   return (
     <Card className="cursor-pointer hover:shadow-md transition-shadow">

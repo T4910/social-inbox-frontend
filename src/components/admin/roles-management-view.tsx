@@ -1,7 +1,5 @@
 "use client";
 
-import type React from "react";
-
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import {
   AlertDialog,
@@ -43,7 +41,6 @@ import {
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
-// import { useAuth } from "@/hooks/use-auth";
 import { useRoles } from "@/hooks/use-roles";
 import { type Permission, type Role } from "@/lib/types";
 import { Edit, PlusCircle, Trash2 } from "lucide-react";
@@ -54,7 +51,6 @@ export function RolesManagementView() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingRole, setEditingRole] = useState<Role | null>(null);
 
-  // const { user } = useAuth();
   const { roles: allRoles, createRole, updateRole, deleteRole } = useRoles();
 
   const handleCreateRole = (role: Omit<Role, "id">) => {

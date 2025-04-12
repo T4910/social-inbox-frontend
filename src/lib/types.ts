@@ -14,7 +14,6 @@ export type Task = {
   createdById: string;
   createdAt: string;
   dueDate: string | null;
-  // tags: string[]
   comments: TaskComment[];
 };
 

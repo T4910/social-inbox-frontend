@@ -8,8 +8,6 @@ export async function getAllUsers() {
   const res = await fetch(`${backendUrl}/api/users`);
   const data = (await res.json()) as BackendResponse<User[]>;
 
-  // console.log(data, 876);
-
   if (!data.ok) {
     throw new Error("Failed to fetch users");
   }

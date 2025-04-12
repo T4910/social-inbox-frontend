@@ -11,12 +11,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { getUserById, useUsers } from "@/hooks/use-users";
+import { useUsers } from "@/hooks/use-users";
 import { type Task } from "@/lib/types";
 import { format } from "date-fns";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 interface TasksTableProps {
   tasks: Task[];
@@ -26,9 +26,17 @@ type SortField = "title" | "status" | "priority" | "dueDate" | "assigneeId";
 type SortDirection = "asc" | "desc";
 
 export function TasksTable({ tasks }: TasksTableProps) {
-  // const { user } = getUserById();
   const [sortField, setSortField] = useState<SortField>("dueDate");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+
+  // Get all users at component level
+  const { users: allUsers } = useUsers();
+
+  // Create a memoized map of users for better performance
+  const userMap = useMemo(() => {
+    if (!allUsers) return new Map();
+    return new Map(allUsers.map((user) => [user.id, user]));
+  }, [allUsers]);
 
   const handleSort = (field: SortField) => {
     if (field === sortField) {
@@ -143,7 +151,7 @@ export function TasksTable({ tasks }: TasksTableProps) {
         <TableBody>
           {sortedTasks.map((task) => {
             const assignee = task.assigneeId
-              ? getUserById(task.assigneeId).user
+              ? userMap.get(task.assigneeId)
               : null;
 
             return (

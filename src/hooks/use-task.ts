@@ -17,7 +17,7 @@ export function useTask() {
     queryFn: () => getAllTasks(),
   });
 
-  const getTaskById = (id: string) => {
+  const useTaskById = (id: string) => {
     const { data: task } = useQuery({
       queryKey: ["tasks", id],
       queryFn: () => getTaskByIdServer(id),
@@ -54,7 +54,7 @@ export function useTask() {
 
   return {
     tasks: allTasks,
-    getTaskById,
+    useTaskById,
     createTask: createTaskMutation.mutate,
     createTaskLoading: createTaskMutation.isPending,
     createTaskError: createTaskMutation.isError,
