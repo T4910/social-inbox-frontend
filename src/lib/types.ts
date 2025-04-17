@@ -4,6 +4,28 @@ export type User = {
   roles: { name: "administrator" | "editor" | "viewer" | string }[];
 };
 
+/**
+ * model Organization {
+  id          String   @id @default(uuid())
+  name        String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  memberships UserOrganization[]
+  tasks       Task[]
+  roles       Roles[]
+}
+ */
+
+export type Organization = {
+  id: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+  // memberships: UserOrganization[];
+  tasks: Task[];
+  roles: Role[];
+};
+
 export type Task = {
   id: string;
   title: string;

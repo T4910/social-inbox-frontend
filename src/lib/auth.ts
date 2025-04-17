@@ -46,11 +46,11 @@ export async function login(
   });
 
   type token = string;
-  const data = (await res.json()) as BackendResponse<token>;
+  const data = (await res.json()) as BackendResponse<{ token: token }>;
 
   if (data.ok) {
     // Set a cookie to simulate authentication
-    (await cookies()).set("auth_token", data.data, {
+    (await cookies()).set("auth_token", data.data.token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       maxAge: 60 * 60 * 24 * 7, // 1 week
@@ -67,7 +67,11 @@ export async function register(
   email: string,
   password: string,
   confirmPassword: string
-): Promise<{ message: string; status: number } | null> {
+): Promise<{
+  message: string;
+  status: number;
+  data?: { userId: string };
+} | null> {
   if (password !== confirmPassword) {
     return { message: "Passwords do not match", status: 400 };
   }
@@ -81,19 +85,14 @@ export async function register(
     body: JSON.stringify({ email, password }),
   });
 
-  type token = string;
-  const data = (await res.json()) as BackendResponse<token>;
+  const data = (await res.json()) as BackendResponse<{ userId: string }>;
 
   if (data.ok) {
-    // Set a cookie to simulate authentication
-    (await cookies()).set("auth_token", data.data, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 60 * 60 * 24 * 7, // 1 week
-      path: "/",
-    });
-
-    return { message: "User registered successfully", status: data.status };
+    return {
+      message: "User registered successfully",
+      data: data.data,
+      status: data.status,
+    };
   }
 
   return {
