@@ -373,7 +373,9 @@ export function TaskDetailView({ taskId, user, orgId }: TaskDetailViewProps) {
                               )}
                             </span>
                           </div>
-                          <p className="mt-1">{comment.content}</p>
+                          <p className="mt-1 w-96 block break-words text-sm text-muted-foreground">
+                            {comment.content}
+                          </p>
                         </div>
                       </div>
                     );
@@ -387,7 +389,7 @@ export function TaskDetailView({ taskId, user, orgId }: TaskDetailViewProps) {
                   <AvatarFallback>{user.email.charAt(0)}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1 space-y-2">
-                  <PermissionCheck actions={["create"]} resources={["tasks"]}>
+                  <PermissionCheck actions={["read"]} resources={["tasks"]}>
                     <Textarea
                       placeholder="Add a comment..."
                       value={newComment}
