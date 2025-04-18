@@ -15,6 +15,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { PermissionCheck } from "@/components/ui/permission-check";
 import {
   Select,
   SelectContent,
@@ -25,7 +26,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
-import { useCheckPermissions } from "@/hooks/use-auth";
+import { useAuth, useCheckPermissions } from "@/hooks/use-auth";
 import { useTask } from "@/hooks/use-task";
 import { useUsers } from "@/hooks/use-users";
 import { addCommentToTask, deleteTask } from "@/lib/tasks";
@@ -37,12 +38,14 @@ import { useMemo, useState } from "react";
 
 interface TaskDetailViewProps {
   taskId: string;
+  orgId: string;
   user: User;
 }
 
-export function TaskDetailView({ taskId, user }: TaskDetailViewProps) {
+export function TaskDetailView({ taskId, user, orgId }: TaskDetailViewProps) {
   const router = useRouter();
   const { toast } = useToast();
+  // const { user } = useAuth();
 
   const [newComment, setNewComment] = useState("");
 
@@ -54,9 +57,6 @@ export function TaskDetailView({ taskId, user }: TaskDetailViewProps) {
     if (!users) return new Map();
     return new Map(users.map((user) => [user.id, user]));
   }, [users]);
-
-  const { isAllowed: canEdit } = useCheckPermissions(["update"], ["tasks"]);
-  const { isAllowed: canDelete } = useCheckPermissions(["delete"], ["tasks"]);
 
   const assignee = task?.assigneeId ? userMap.get(task.assigneeId) : null;
   const creator = task?.createdById ? userMap.get(task.createdById) : null;
@@ -142,7 +142,7 @@ export function TaskDetailView({ taskId, user }: TaskDetailViewProps) {
   };
 
   const handleDeleteTask = () => {
-    deleteTask(task.id).then(() => {
+    deleteTask(task.id, orgId).then(() => {
       toast({
         title: "Task deleted",
         description: "The task has been deleted successfully",
@@ -168,7 +168,7 @@ export function TaskDetailView({ taskId, user }: TaskDetailViewProps) {
             <div className="flex items-start justify-between">
               <h1 className="text-2xl font-bold">{task.title}</h1>
 
-              {canDelete && (
+              <PermissionCheck actions={["delete"]} resources={["tasks"]}>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button variant="destructive" size="sm">
@@ -192,7 +192,7 @@ export function TaskDetailView({ taskId, user }: TaskDetailViewProps) {
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
-              )}
+              </PermissionCheck>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -206,103 +206,99 @@ export function TaskDetailView({ taskId, user }: TaskDetailViewProps) {
               </div>
 
               <div className="space-y-4">
-                {canEdit ? (
-                  <>
-                    <div className="rounded-md border p-4">
-                      <h2 className="font-semibold mb-2">Status</h2>
-                      <Select
-                        defaultValue={task.status}
-                        onValueChange={handleStatusChange}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="PENDING">To Do</SelectItem>
-                          <SelectItem value="IN_PROGRESS">
-                            In Progress
+                <PermissionCheck actions={["update"]} resources={["tasks"]}>
+                  <div className="rounded-md border p-4">
+                    <h2 className="font-semibold mb-2">Status</h2>
+                    <Select
+                      defaultValue={task.status}
+                      onValueChange={handleStatusChange}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="PENDING">To Do</SelectItem>
+                        <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
+                        <SelectItem value="REVIEW">In Review</SelectItem>
+                        <SelectItem value="DONE">Done</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="rounded-md border p-4">
+                    <h2 className="font-semibold mb-2">Priority</h2>
+                    <Select
+                      defaultValue={task.priority}
+                      onValueChange={handlePriorityChange}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="LOW">Low</SelectItem>
+                        <SelectItem value="MEDIUM">Medium</SelectItem>
+                        <SelectItem value="HIGH">High</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="rounded-md border p-4">
+                    <h2 className="font-semibold mb-2">Assignee</h2>
+                    <Select
+                      defaultValue={task.assigneeId || ""}
+                      onValueChange={handleAssigneeChange}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Unassigned" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {users?.map((user) => (
+                          <SelectItem key={user.id} value={user.id}>
+                            {user.email}
                           </SelectItem>
-                          <SelectItem value="REVIEW">In Review</SelectItem>
-                          <SelectItem value="DONE">Done</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </PermissionCheck>
 
-                    <div className="rounded-md border p-4">
-                      <h2 className="font-semibold mb-2">Priority</h2>
-                      <Select
-                        defaultValue={task.priority}
-                        onValueChange={handlePriorityChange}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="LOW">Low</SelectItem>
-                          <SelectItem value="MEDIUM">Medium</SelectItem>
-                          <SelectItem value="HIGH">High</SelectItem>
-                        </SelectContent>
-                      </Select>
+                {/* {!canEdit && ( */}
+                <>
+                  <div className="rounded-md border p-4">
+                    <h2 className="font-semibold mb-2">Status</h2>
+                    <div className="flex items-center gap-2">
+                      <StatusBadge status={task.status} />
                     </div>
+                  </div>
 
-                    <div className="rounded-md border p-4">
-                      <h2 className="font-semibold mb-2">Assignee</h2>
-                      <Select
-                        defaultValue={task.assigneeId || ""}
-                        onValueChange={handleAssigneeChange}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Unassigned" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {users?.map((user) => (
-                            <SelectItem key={user.id} value={user.id}>
-                              {user.email}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                  <div className="rounded-md border p-4">
+                    <h2 className="font-semibold mb-2">Priority</h2>
+                    <div className="flex items-center gap-2">
+                      <PriorityBadge priority={task.priority} />
                     </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="rounded-md border p-4">
-                      <h2 className="font-semibold mb-2">Status</h2>
+                  </div>
+
+                  <div className="rounded-md border p-4">
+                    <h2 className="font-semibold mb-2">Assignee</h2>
+                    {assignee ? (
                       <div className="flex items-center gap-2">
-                        <StatusBadge status={task.status} />
+                        <Avatar className="h-6 w-6">
+                          <AvatarImage
+                            src={"assignee.avatar"}
+                            alt={assignee?.email}
+                          />
+                          <AvatarFallback>
+                            {assignee?.email.charAt(0)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span>{assignee?.email}</span>
                       </div>
-                    </div>
-
-                    <div className="rounded-md border p-4">
-                      <h2 className="font-semibold mb-2">Priority</h2>
-                      <div className="flex items-center gap-2">
-                        <PriorityBadge priority={task.priority} />
-                      </div>
-                    </div>
-
-                    <div className="rounded-md border p-4">
-                      <h2 className="font-semibold mb-2">Assignee</h2>
-                      {assignee ? (
-                        <div className="flex items-center gap-2">
-                          <Avatar className="h-6 w-6">
-                            <AvatarImage
-                              src={"assignee.avatar"}
-                              alt={assignee?.email}
-                            />
-                            <AvatarFallback>
-                              {assignee?.email.charAt(0)}
-                            </AvatarFallback>
-                          </Avatar>
-                          <span>{assignee?.email}</span>
-                        </div>
-                      ) : (
-                        <span className="text-muted-foreground">
-                          Unassigned
-                        </span>
-                      )}
-                    </div>
-                  </>
-                )}
+                    ) : (
+                      <span className="text-muted-foreground">Unassigned</span>
+                    )}
+                  </div>
+                </>
+                {/* )} */}
 
                 <div className="rounded-md border p-4">
                   <h2 className="font-semibold mb-2">Due Date</h2>
@@ -391,18 +387,20 @@ export function TaskDetailView({ taskId, user }: TaskDetailViewProps) {
                   <AvatarFallback>{user.email.charAt(0)}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1 space-y-2">
-                  <Textarea
-                    placeholder="Add a comment..."
-                    value={newComment}
-                    onChange={(e) => setNewComment(e.target.value)}
-                  />
-                  <Button
-                    onClick={handleAddComment}
-                    disabled={!newComment.trim()}
-                  >
-                    <MessageSquare className="mr-2 h-4 w-4" />
-                    Comment
-                  </Button>
+                  <PermissionCheck actions={["create"]} resources={["tasks"]}>
+                    <Textarea
+                      placeholder="Add a comment..."
+                      value={newComment}
+                      onChange={(e) => setNewComment(e.target.value)}
+                    />
+                    <Button
+                      onClick={handleAddComment}
+                      disabled={!newComment.trim()}
+                    >
+                      <MessageSquare className="mr-2 h-4 w-4" />
+                      Comment
+                    </Button>
+                  </PermissionCheck>
                 </div>
               </div>
             </div>

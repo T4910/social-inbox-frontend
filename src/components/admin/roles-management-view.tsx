@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PermissionCheck } from "@/components/ui/permission-check";
 import {
   Table,
   TableBody,
@@ -94,10 +95,12 @@ export function RolesManagementView() {
             <h2 className="text-3xl font-bold tracking-tight">
               Role Management
             </h2>
-            <Button onClick={() => setIsCreateDialogOpen(true)}>
-              <PlusCircle className="mr-2 h-4 w-4" />
-              New Role
-            </Button>
+            <PermissionCheck actions={["create"]} resources={["roles"]}>
+              <Button onClick={() => setIsCreateDialogOpen(true)}>
+                <PlusCircle className="mr-2 h-4 w-4" />
+                New Role
+              </Button>
+            </PermissionCheck>
           </div>
 
           <Card>
@@ -113,8 +116,18 @@ export function RolesManagementView() {
                   <TableRow>
                     <TableHead className="w-[200px]">Name</TableHead>
                     <TableHead className="w-[300px]">Description</TableHead>
-                    <TableHead>Permissions</TableHead>
-                    <TableHead className="w-[100px]">Actions</TableHead>
+                    <PermissionCheck
+                      actions={["update", "delete", "create"]}
+                      resources={["roles"]}
+                    >
+                      <TableHead>Permissions</TableHead>
+                    </PermissionCheck>
+                    <PermissionCheck
+                      actions={["update", "delete", "create"]}
+                      resources={["roles"]}
+                    >
+                      <TableHead className="w-[100px]">Actions</TableHead>
+                    </PermissionCheck>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -122,63 +135,84 @@ export function RolesManagementView() {
                     <TableRow key={role.id}>
                       <TableCell className="font-medium">{role.name}</TableCell>
                       <TableCell>{role.description}</TableCell>
-                      <TableCell>
-                        <div className="flex flex-wrap gap-1">
-                          {role.permissions.length > 0 ? (
-                            <>
-                              <span className="text-xs bg-muted px-1.5 py-0.5 rounded">
-                                {role.permissions.length} permissions
+                      <PermissionCheck
+                        actions={["update", "delete", "create"]}
+                        resources={["roles"]}
+                      >
+                        <TableCell>
+                          <div className="flex flex-wrap gap-1">
+                            {role.permissions.length > 0 ? (
+                              <>
+                                <span className="text-xs bg-muted px-1.5 py-0.5 rounded">
+                                  {role.permissions.length} permissions
+                                </span>
+                              </>
+                            ) : (
+                              <span className="text-muted-foreground">
+                                No permissions
                               </span>
-                            </>
-                          ) : (
-                            <span className="text-muted-foreground">
-                              No permissions
-                            </span>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setEditingRole(role)}
-                          >
-                            <Edit className="h-4 w-4" />
-                            <span className="sr-only">Edit</span>
-                          </Button>
+                            )}
+                          </div>
+                        </TableCell>
+                      </PermissionCheck>
 
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button variant="ghost" size="icon">
-                                <Trash2 className="h-4 w-4" />
-                                <span className="sr-only">Delete</span>
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>
-                                  Are you sure?
-                                </AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  This action cannot be undone. This will
-                                  permanently delete the role.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction
-                                  onClick={() =>
-                                    handleDeleteRole(role.id, role.name)
-                                  }
-                                >
-                                  Delete
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </div>
-                      </TableCell>
+                      <PermissionCheck
+                        actions={["update", "delete"]}
+                        resources={["roles"]}
+                      >
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            {/* <PermissionCheck
+                              actions={["update"]}
+                              resources={["roles"]}
+                            > */}
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => setEditingRole(role)}
+                            >
+                              <Edit className="h-4 w-4" />
+                              <span className="sr-only">Edit</span>
+                            </Button>
+                            {/* </PermissionCheck> */}
+
+                            {/* <PermissionCheck
+                              actions={["delete"]}
+                              resources={["roles"]}
+                            > */}
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="ghost" size="icon">
+                                  <Trash2 className="h-4 w-4" />
+                                  <span className="sr-only">Delete</span>
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>
+                                    Are you sure?
+                                  </AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    This action cannot be undone. This will
+                                    permanently delete the role.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() =>
+                                      handleDeleteRole(role.id, role.name)
+                                    }
+                                  >
+                                    Delete
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                            {/* </PermissionCheck> */}
+                          </div>
+                        </TableCell>
+                      </PermissionCheck>
                     </TableRow>
                   ))}
                 </TableBody>

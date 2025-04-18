@@ -1,5 +1,5 @@
 import { TaskDetailView } from "@/components/tasks/task-detail-view";
-import { getCurrentUser } from "@/lib/auth";
+import { getCurrentUser, hasPermissions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
 export default async function TaskDetailPage({
@@ -8,10 +8,18 @@ export default async function TaskDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const user = await getCurrentUser();
+  const canManageTasks = await hasPermissions(["read"], ["tasks"]);
 
-  if (!user) {
-    redirect("/login");
+  const currentOrg = user?.memberships?.find((m) => m.isCurrent);
+  if (!user || !currentOrg || !canManageTasks) {
+    redirect("/dashboard");
   }
 
-  return <TaskDetailView taskId={(await params).id} user={user} />;
+  return (
+    <TaskDetailView
+      taskId={(await params).id}
+      user={user}
+      orgId={currentOrg.organizationId}
+    />
+  );
 }

@@ -13,6 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { PermissionCheck } from "@/components/ui/permission-check";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTask } from "@/hooks/use-task";
 import { type User } from "@/lib/types";
@@ -162,10 +163,12 @@ export function TasksView({ user }: { user: User }) {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              <Button onClick={() => setIsCreateTaskOpen(true)}>
-                <PlusCircle className="mr-2 h-4 w-4" />
-                New Task
-              </Button>
+              <PermissionCheck actions={["create"]} resources={["tasks"]}>
+                <Button onClick={() => setIsCreateTaskOpen(true)}>
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  New Task
+                </Button>
+              </PermissionCheck>
             </div>
           </div>
 
@@ -186,11 +189,13 @@ export function TasksView({ user }: { user: User }) {
         </div>
       </div>
 
-      <CreateTaskDialog
-        open={isCreateTaskOpen}
-        onOpenChange={setIsCreateTaskOpen}
-        userId={user.id}
-      />
+      <PermissionCheck actions={["create"]} resources={["tasks"]}>
+        <CreateTaskDialog
+          open={isCreateTaskOpen}
+          onOpenChange={setIsCreateTaskOpen}
+          userId={user.id}
+        />
+      </PermissionCheck>
     </div>
   );
 }

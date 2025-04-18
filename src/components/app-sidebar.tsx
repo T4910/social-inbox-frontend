@@ -4,7 +4,7 @@ import { useSidebar } from "@/components/sidebar-provider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth, useCheckPermissions } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
 import {
   CheckSquare,
@@ -21,15 +21,19 @@ export function AppSidebar() {
   const pathname = usePathname();
 
   const { user, logOutUser } = useAuth();
+  const { isAllowed: readRoles } = useCheckPermissions(["read"], ["roles"]);
 
-  const isAdmin =
-    user?.memberships?.find((m) => m.isCurrent)?.role === "administrator";
+  console.log("can read roels: ", readRoles);
+  // const isAdmin =
+  //   user?.memberships?.find((m) => m.isCurrent)?.role === "administrator";
+
+  // const readRoles =  await hasPermissions(["read"], ["roles"]);
 
   const navigation = [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     { name: "Tasks", href: "/tasks", icon: CheckSquare },
     // { name: "Team", href: "/team", icon: Users },
-    ...(isAdmin
+    ...(readRoles
       ? [{ name: "Role Management", href: "/admin/roles", icon: Settings }]
       : []),
   ];

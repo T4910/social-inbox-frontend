@@ -12,6 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { PermissionCheck } from "@/components/ui/permission-check";
 import { useAssignedTask } from "@/hooks/use-task";
 import { type User } from "@/lib/types";
 import { PlusCircle } from "lucide-react";
@@ -41,10 +42,12 @@ export function DashboardView({ user }: { user: User }) {
         <div className="flex flex-col gap-6">
           <div className="flex items-center justify-between">
             <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
-            <Button onClick={() => setIsCreateTaskOpen(true)}>
-              <PlusCircle className="mr-2 h-4 w-4" />
-              New Task
-            </Button>
+            <PermissionCheck actions={["create"]} resources={["tasks"]}>
+              <Button onClick={() => setIsCreateTaskOpen(true)}>
+                <PlusCircle className="mr-2 h-4 w-4" />
+                New Task
+              </Button>
+            </PermissionCheck>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -84,11 +87,13 @@ export function DashboardView({ user }: { user: User }) {
         </div>
       </div>
 
-      <CreateTaskDialog
-        open={isCreateTaskOpen}
-        onOpenChange={setIsCreateTaskOpen}
-        userId={user.id}
-      />
+      <PermissionCheck actions={["create"]} resources={["tasks"]}>
+        <CreateTaskDialog
+          open={isCreateTaskOpen}
+          onOpenChange={setIsCreateTaskOpen}
+          userId={user.id}
+        />
+      </PermissionCheck>
     </div>
   );
 }

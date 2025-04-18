@@ -1,4 +1,5 @@
 "use server";
+import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { BackendResponse, type User } from "./types";
 
@@ -18,11 +19,13 @@ export async function getCurrentUser(): Promise<User | null> {
     });
     const data = (await res.json()) as BackendResponse<User>;
 
-    console.log(data, "data");
+    // console.log(data, "data");
 
     if (!data.ok) {
       return null;
     }
+
+    // console.log(data, "checking the data in curretnUser");
 
     return data.data || null;
   } catch (error) {
@@ -121,9 +124,21 @@ export async function hasPermissions(
       body: JSON.stringify({ token, actions, resources }),
     });
     const data = (await res.json()) as BackendResponse<boolean>;
+
+    console.log("data", data);
     if (!data.ok) {
       return false;
     }
+
+    console.log(
+      "Action from server: ",
+      actions,
+      "Resources: ",
+      resources,
+      "can do it: ",
+      data.data
+    );
+
     return data.data || false;
   } catch (error) {
     console.error("Error checking permissions:", error);
@@ -153,5 +168,7 @@ export async function switchOrganization(
     });
     return { message: "Organization switched", status: 200 };
   }
+
+  revalidatePath("/(home)", "layout");
   return { message: data.message || "Switch failed", status: data.status };
 }
