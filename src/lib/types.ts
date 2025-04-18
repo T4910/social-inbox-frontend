@@ -1,7 +1,13 @@
 export type User = {
   id: string;
   email: string;
-  roles: { name: "administrator" | "editor" | "viewer" | string }[];
+  roles: { name: string }[];
+  memberships: {
+    organizationId: string;
+    organizationName: string;
+    role: string;
+    isCurrent: boolean;
+  }[];
 };
 
 /**

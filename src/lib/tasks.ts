@@ -3,44 +3,49 @@
 import { BackendResponse, Task, TaskComment } from "./types";
 const backendUrl = process.env.BACKEND_URL || "http://localhost:8787";
 
-// get all tasks
-export async function getAllTasks() {
-  const res = await fetch(`${backendUrl}/api/tasks`);
+// get all tasks (scoped)
+export async function getAllTasks(organizationId: string) {
+  const res = await fetch(
+    `${backendUrl}/api/tasks?organizationId=${organizationId}`
+  );
   const data = (await res.json()) as BackendResponse<Task[]>;
-
   if (!data.ok) {
     throw new Error(data.message || "Failed to fetch tasks");
   }
-
   return data.data;
 }
 
-// get task by id
-export async function getTaskById(id: string) {
-  const res = await fetch(`${backendUrl}/api/tasks/${id}`);
+// get task by id (scoped)
+export async function getTaskById(id: string, organizationId: string) {
+  const res = await fetch(
+    `${backendUrl}/api/tasks/${id}?organizationId=${organizationId}`
+  );
   const data = (await res.json()) as BackendResponse<Task>;
-
   if (!data.ok) {
     throw new Error(data.message || "Failed to fetch task");
   }
-
   return data.data;
 }
 
-// get task by assignee id
-export async function getTaskByAssigneeId(assigneeId: string) {
-  const res = await fetch(`${backendUrl}/api/tasks?assigneeId=${assigneeId}`);
+// get task by assignee id (scoped)
+export async function getTaskByAssigneeId(
+  assigneeId: string,
+  organizationId: string
+) {
+  const res = await fetch(
+    `${backendUrl}/api/tasks?assigneeId=${assigneeId}&organizationId=${organizationId}`
+  );
   const data = (await res.json()) as BackendResponse<Task[]>;
-
   if (!data.ok) {
     throw new Error(data.message || "Failed to fetch tasks");
   }
-
   return data.data;
 }
 
-// create newtask
-export async function createTask(task: Omit<Task, "id">) {
+// create new task (scoped)
+export async function createTask(
+  task: Omit<Task, "id"> & { organizationId: string }
+) {
   const res = await fetch(`${backendUrl}/api/tasks`, {
     method: "POST",
     headers: {
@@ -49,18 +54,14 @@ export async function createTask(task: Omit<Task, "id">) {
     body: JSON.stringify(task),
   });
   const data = (await res.json()) as BackendResponse<Task>;
-
-  console.log(data, "data create");
-
   if (!data.ok) {
     throw new Error(data.message || "Failed to create task");
   }
-
   return data.data;
 }
 
-// update task
-export async function updateTask(task: Task) {
+// update task (scoped)
+export async function updateTask(task: Task & { organizationId: string }) {
   const res = await fetch(`${backendUrl}/api/tasks/${task.id}`, {
     method: "PUT",
     headers: {
@@ -69,28 +70,27 @@ export async function updateTask(task: Task) {
     body: JSON.stringify(task),
   });
   const data = (await res.json()) as BackendResponse<Task>;
-
   if (!data.ok) {
     throw new Error(data.message || "Failed to update task");
   }
-
   return data.data;
 }
 
-// delete task
-export async function deleteTask(id: string) {
-  const res = await fetch(`${backendUrl}/api/tasks/${id}`, {
-    method: "DELETE",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+// delete task (scoped)
+export async function deleteTask(id: string, organizationId: string) {
+  const res = await fetch(
+    `${backendUrl}/api/tasks/${id}?organizationId=${organizationId}`,
+    {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
   const data = (await res.json()) as BackendResponse<Task>;
-
   if (!data.ok) {
     throw new Error(data.message || "Failed to delete task");
   }
-
   return data.data;
 }
 

@@ -1,37 +1,48 @@
+import { useAuth } from "@/hooks/use-auth";
 import { createRole, deleteRole, getRoles, updateRole } from "@/lib/roles";
 import { type Role } from "@/lib/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export function useRoles() {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const organizationId = user?.memberships?.find((m) => m.isCurrent)
+    ?.organizationId!;
 
   const { data: allRoles } = useQuery({
-    queryKey: ["roles"],
-    queryFn: () => getRoles(),
+    queryKey: ["roles", organizationId],
+    queryFn: () => getRoles(organizationId),
+    enabled: !!organizationId,
   });
 
   const createRoleMutation = useMutation({
-    mutationFn: (role: Omit<Role, "id">) => createRole(role),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["roles"] }),
-    onError: (error) => console.error("Error adding to cart:", error),
+    mutationFn: (role: Omit<Role, "id">) =>
+      createRole({ ...role, organizationId }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["roles", organizationId] }),
+    onError: (error) => console.error("Error creating role:", error),
   });
 
   const updateRoleMutation = useMutation({
-    mutationFn: (role: Role) => updateRole(role),
+    mutationFn: (role: Role) => updateRole({ ...role, organizationId }),
     onSuccess: (role) => {
-      queryClient.invalidateQueries({ queryKey: ["roles"] });
-      queryClient.invalidateQueries({ queryKey: ["roles", role.id] });
+      queryClient.invalidateQueries({ queryKey: ["roles", organizationId] });
+      queryClient.invalidateQueries({
+        queryKey: ["roles", organizationId, role.id],
+      });
     },
-    onError: (error) => console.error("Error adding to cart:", error),
+    onError: (error) => console.error("Error updating role:", error),
   });
 
   const deleteRoleMutation = useMutation({
-    mutationFn: (roleId: string) => deleteRole(roleId),
+    mutationFn: (roleId: string) => deleteRole(roleId, organizationId),
     onSuccess: (_, roleId) => {
-      queryClient.invalidateQueries({ queryKey: ["roles"] });
-      queryClient.invalidateQueries({ queryKey: ["roles", roleId] });
+      queryClient.invalidateQueries({ queryKey: ["roles", organizationId] });
+      queryClient.invalidateQueries({
+        queryKey: ["roles", organizationId, roleId],
+      });
     },
-    onError: (error) => console.error("Error adding to cart:", error),
+    onError: (error) => console.error("Error deleting role:", error),
   });
 
   return {

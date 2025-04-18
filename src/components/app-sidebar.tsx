@@ -22,7 +22,8 @@ export function AppSidebar() {
 
   const { user, logOutUser } = useAuth();
 
-  const isAdmin = user?.roles[0].name === "administrator";
+  const isAdmin =
+    user?.memberships?.find((m) => m.isCurrent)?.role === "administrator";
 
   const navigation = [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -79,9 +80,7 @@ export function AppSidebar() {
           <div className="flex flex-col">
             <span className="text-sm font-medium">{user?.email}</span>
             <span className="text-xs text-muted-foreground capitalize">
-              {user?.roles.map((role) =>
-                user?.roles.length > 1 ? `${role.name} ,` : `${role.name}`
-              )}
+              {user?.memberships?.find((m) => m.isCurrent)?.role}
             </span>
           </div>
           <Button

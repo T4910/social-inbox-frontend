@@ -1,3 +1,4 @@
+import { useAuth } from "@/hooks/use-auth";
 import {
   // addCommentToTask,
   createTask,
@@ -12,43 +13,52 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export function useTask() {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const organizationId = user?.memberships?.find((m) => m.isCurrent)
+    ?.organizationId!;
 
   const { data: allTasks } = useQuery({
-    queryKey: ["tasks"],
-    queryFn: () => getAllTasks(),
+    queryKey: ["tasks", organizationId],
+    queryFn: () => getAllTasks(organizationId),
+    enabled: !!organizationId,
   });
 
   const useTaskById = (id: string) => {
     const { data: task } = useQuery({
-      queryKey: ["tasks", id],
-      queryFn: () => getTaskByIdServer(id),
-      enabled: !!id,
+      queryKey: ["tasks", organizationId, id],
+      queryFn: () => getTaskByIdServer(id, organizationId),
+      enabled: !!id && !!organizationId,
       initialData: allTasks?.find((task) => task.id === id),
     });
-
     return { task };
   };
 
   const createTaskMutation = useMutation({
-    mutationFn: (task: Omit<Task, "id">) => createTask(task),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["tasks"] }),
+    mutationFn: (task: Omit<Task, "id">) =>
+      createTask({ ...task, organizationId }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["tasks", organizationId] }),
     onError: (error) => console.error("Error adding to cart:", error),
   });
 
   const updateTaskMutation = useMutation({
-    mutationFn: (task: Task) => updateTask(task),
+    mutationFn: (task: Task) => updateTask({ ...task, organizationId }),
     onSuccess: (task) => {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
-      queryClient.invalidateQueries({ queryKey: ["tasks", task.id] });
+      queryClient.invalidateQueries({ queryKey: ["tasks", organizationId] });
+      queryClient.invalidateQueries({
+        queryKey: ["tasks", organizationId, task.id],
+      });
     },
     onError: (error) => console.error("Error adding to cart:", error),
   });
 
   const deleteTaskMutation = useMutation({
-    mutationFn: (taskId: string) => deleteTask(taskId),
+    mutationFn: (taskId: string) => deleteTask(taskId, organizationId),
     onSuccess: (task) => {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
-      queryClient.invalidateQueries({ queryKey: ["tasks", task.id] });
+      queryClient.invalidateQueries({ queryKey: ["tasks", organizationId] });
+      queryClient.invalidateQueries({
+        queryKey: ["tasks", organizationId, task.id],
+      });
     },
     onError: (error) => console.error("Error adding to cart:", error),
   });
@@ -81,21 +91,15 @@ export function useTask() {
 }
 
 export function useAssignedTask(userId: string) {
-  //   const queryClient = useQueryClient();
-
+  const { user } = useAuth();
+  const organizationId = user?.memberships?.find((m) => m.isCurrent)
+    ?.organizationId!;
   const { data: allUserTasks } = useQuery({
-    queryKey: ["tasks", userId],
-    queryFn: () => getTaskByAssigneeId(userId),
+    queryKey: ["tasks", organizationId, userId],
+    queryFn: () => getTaskByAssigneeId(userId, organizationId),
+    enabled: !!organizationId && !!userId,
   });
-
   return {
     tasks: allUserTasks,
-    // createTask: createTaskMutation.mutate,
-    // createTaskLoading: createTaskMutation.isPending,
-    // createTaskError: createTaskMutation.isError,
-    // createTaskErrorData: createTaskMutation.error,
-    // createTaskSuccess: createTaskMutation.isSuccess,
-    // createTaskClearError: () => createTaskMutation.reset(),
-    // createTaskClearSuccess: () => createTaskMutation.reset(),
   };
 }

@@ -3,9 +3,11 @@ import { BackendResponse, type Role } from "@/lib/types";
 
 const backendUrl = process.env.BACKEND_URL || "http://localhost:8787";
 
-// get all roles
-export async function getRoles() {
-  const res = await fetch(`${backendUrl}/api/roles`);
+// get all roles (scoped)
+export async function getRoles(organizationId: string) {
+  const res = await fetch(
+    `${backendUrl}/api/roles?organizationId=${organizationId}`
+  );
   const data = (await res.json()) as BackendResponse<Role[]>;
 
   if (!data.ok) {
@@ -15,9 +17,11 @@ export async function getRoles() {
   return data.data;
 }
 
-// get role by id
-export async function getRoleById(id: string) {
-  const res = await fetch(`${backendUrl}/api/roles/${id}`);
+// get role by id (scoped)
+export async function getRoleById(id: string, organizationId: string) {
+  const res = await fetch(
+    `${backendUrl}/api/roles/${id}?organizationId=${organizationId}`
+  );
   const data = (await res.json()) as BackendResponse<Role>;
 
   if (!data.ok) {
@@ -27,8 +31,10 @@ export async function getRoleById(id: string) {
   return data.data;
 }
 
-// create role
-export async function createRole(role: Omit<Role, "id">) {
+// create role (scoped)
+export async function createRole(
+  role: Omit<Role, "id"> & { organizationId: string }
+) {
   const res = await fetch(`${backendUrl}/api/roles`, {
     method: "POST",
     headers: {
@@ -45,15 +51,18 @@ export async function createRole(role: Omit<Role, "id">) {
   return data.data;
 }
 
-// update role
-export async function updateRole(role: Role) {
-  const res = await fetch(`${backendUrl}/api/roles/${role.id}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(role),
-  });
+// update role (scoped)
+export async function updateRole(role: Role & { organizationId: string }) {
+  const res = await fetch(
+    `${backendUrl}/api/roles/${role.id}?organizationId=${role.organizationId}`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(role),
+    }
+  );
   const data = (await res.json()) as BackendResponse<Role>;
 
   if (!data.ok) {
@@ -63,11 +72,14 @@ export async function updateRole(role: Role) {
   return data.data;
 }
 
-// delete role
-export async function deleteRole(id: string) {
-  const res = await fetch(`${backendUrl}/api/roles/${id}`, {
-    method: "DELETE",
-  });
+// delete role (scoped)
+export async function deleteRole(id: string, organizationId: string) {
+  const res = await fetch(
+    `${backendUrl}/api/roles/${id}?organizationId=${organizationId}`,
+    {
+      method: "DELETE",
+    }
+  );
   const data = (await res.json()) as BackendResponse<{ message: string }>;
 
   if (!data.ok) {

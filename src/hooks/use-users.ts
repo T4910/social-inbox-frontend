@@ -1,3 +1,4 @@
+import { useAuth } from "@/hooks/use-auth";
 import { type User } from "@/lib/types";
 import {
   deleteUser,
@@ -9,45 +10,40 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export function useUsers() {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const organizationId = user?.memberships?.find((m) => m.isCurrent)
+    ?.organizationId!;
 
   const { data: allUsers } = useQuery({
-    queryKey: ["users"],
-    queryFn: () => getAllUsers(),
+    queryKey: ["users", organizationId],
+    queryFn: () => getAllUsers(organizationId),
+    enabled: !!organizationId,
   });
 
-  // const createUserMutation = useMutation({
-  //   mutationFn: (user: Omit<User, "id">) => createUser(user),
-  //   onSuccess: () => queryClient.invalidateQueries({ queryKey: ["users"] }),
-  //   onError: (error) => console.error("Error adding to cart:", error),
-  // });
-
   const updateUserMutation = useMutation({
-    mutationFn: (user: User) => updateUser(user.id, user),
+    mutationFn: (user: User) => updateUser(user.id, user, organizationId),
     onSuccess: (user) => {
-      queryClient.invalidateQueries({ queryKey: ["users"] });
-      queryClient.invalidateQueries({ queryKey: ["users", user.id] });
+      queryClient.invalidateQueries({ queryKey: ["users", organizationId] });
+      queryClient.invalidateQueries({
+        queryKey: ["users", organizationId, user.id],
+      });
     },
-    onError: (error) => console.error("Error adding to cart:", error),
+    onError: (error) => console.error("Error updating user:", error),
   });
 
   const deleteUserMutation = useMutation({
-    mutationFn: (userId: string) => deleteUser(userId),
+    mutationFn: (userId: string) => deleteUser(userId, organizationId),
     onSuccess: (user) => {
-      queryClient.invalidateQueries({ queryKey: ["users"] });
-      queryClient.invalidateQueries({ queryKey: ["users", user.id] });
+      queryClient.invalidateQueries({ queryKey: ["users", organizationId] });
+      queryClient.invalidateQueries({
+        queryKey: ["users", organizationId, user.id],
+      });
     },
-    onError: (error) => console.error("Error adding to cart:", error),
+    onError: (error) => console.error("Error deleting user:", error),
   });
 
   return {
     users: allUsers,
-    // createUser: createUserMutation.mutate,
-    // createUserLoading: createUserMutation.isPending,
-    // createUserError: createUserMutation.isError,
-    // createUserErrorData: createUserMutation.error,
-    // createUserSuccess: createUserMutation.isSuccess,
-    // createUserClearError: () => createUserMutation.reset(),
-    // createUserClearSuccess: () => createUserMutation.reset(),
     updateUser: updateUserMutation.mutate,
     updateUserLoading: updateUserMutation.isPending,
     updateUserError: updateUserMutation.isError,
@@ -67,14 +63,17 @@ export function useUsers() {
 
 export const useUserById = (id: string) => {
   const queryClient = useQueryClient();
-  const allUsers = queryClient.getQueryData<User[]>(["users"]);
+  const { user } = useAuth();
+  const organizationId = user?.memberships?.find((m) => m.isCurrent)
+    ?.organizationId!;
+  const allUsers = queryClient.getQueryData<User[]>(["users", organizationId]);
 
-  const { data: user } = useQuery({
-    queryKey: ["users", id],
-    queryFn: () => getUserByIdServer(id),
-    enabled: !!id,
+  const { data: userData } = useQuery({
+    queryKey: ["users", organizationId, id],
+    queryFn: () => getUserByIdServer(id, organizationId),
+    enabled: !!id && !!organizationId,
     initialData: allUsers?.find((user) => user.id === id),
   });
 
-  return { user };
+  return { user: userData };
 };
