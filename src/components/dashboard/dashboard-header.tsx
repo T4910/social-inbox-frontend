@@ -13,9 +13,11 @@ import { switchOrganization } from "@/lib/auth";
 import { useQuery } from "@tanstack/react-query";
 import { Bell, Menu, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export function DashboardHeader() {
+  const router = useRouter();
   const { toggle } = useSidebar();
   const { setTheme } = useTheme();
   const { user } = useAuth();
@@ -29,6 +31,8 @@ export function DashboardHeader() {
     setOrgSwitching(true);
     await switchOrganization(orgId);
     window.location.reload();
+    // router.
+    // return router.refresh();
   };
 
   return (
@@ -43,7 +47,7 @@ export function DashboardHeader() {
         <span className="sr-only">Toggle menu</span>
       </Button>
 
-      {organizations.length > 1 && (
+      {organizations.length > 0 && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="font-semibold text-orange-500">
@@ -55,7 +59,10 @@ export function DashboardHeader() {
             {organizations.map((org) => (
               <DropdownMenuItem
                 key={org.organizationId}
-                onClick={() => handleSwitchOrg(org.organizationId)}
+                onClick={() =>
+                  org.organizationId !== currentOrgId &&
+                  handleSwitchOrg(org.organizationId)
+                }
                 className={
                   org.organizationId === currentOrgId
                     ? "bg-orange-100 text-orange-600"
