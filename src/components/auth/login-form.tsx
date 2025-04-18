@@ -58,10 +58,10 @@ export function LoginForm() {
         router.refresh();
       } else {
         setError(res?.message || "An error occurred. Please try again.");
+        setIsLoading(false);
       }
     } catch (error) {
       setError(`An error occurred. Please try again. ${error}`);
-    } finally {
       setIsLoading(false);
     }
   }
