@@ -8,7 +8,6 @@ export async function getCurrentUser(): Promise<User | null> {
   try {
     const token = (await cookies()).get("auth_token")?.value;
 
-    console.log(token, "token");
     const res = await fetch(`${backendUrl}/api/auth/me`, {
       method: "POST",
       headers: {

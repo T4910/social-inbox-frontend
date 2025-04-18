@@ -116,6 +116,7 @@ export function SignupForm() {
             return;
           } else {
             setError(result.message || "Failed to accept invite.");
+            setIsLoading(false);
             return;
           }
         }
@@ -124,10 +125,10 @@ export function SignupForm() {
         setShowOrgDialog(true);
       } else {
         setError(data?.message || "An error occurred. Please try again.");
+        setIsLoading(false);
       }
     } catch (error) {
       setError(`An error occurred. Please try again. ${error}`);
-    } finally {
       setIsLoading(false);
     }
   }
@@ -146,8 +147,10 @@ export function SignupForm() {
 
       const data = await createOrganization(
         userId,
-        values.name,
-        values.invites?.split(",") || []
+        values.name.trim(),
+        values.invites !== ""
+          ? values.invites?.split(",").map((email) => email.trim())
+          : null
       );
 
       if (data?.status === 200) {

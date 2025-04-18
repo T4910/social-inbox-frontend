@@ -1,3 +1,4 @@
+"use server";
 import { cookies } from "next/headers";
 import { BackendResponse, Organization } from "./types";
 
@@ -7,14 +8,16 @@ const backendUrl = process.env.BACKEND_URL || "http://localhost:8787";
 export async function createOrganization(
   userId: string,
   name: string,
-  invites: string[]
+  invites?: string[] | null
 ) {
+  const payload = !!invites ? { userId, name, invites } : { userId, name };
+
   const res = await fetch(`${backendUrl}/api/organization`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ userId, name, invites }),
+    body: JSON.stringify(payload),
   });
 
   const data = (await res.json()) as BackendResponse<{ token: string }>;
@@ -54,7 +57,7 @@ export async function acceptInvite(token: string) {
         data: {
           type: "register-user-first";
           message: string;
-          inviteId: string;
+          inviteToken: string;
         };
       };
 
@@ -67,7 +70,7 @@ export async function acceptInvite(token: string) {
     return {
       message: "register-user-first" as const,
       status: 404,
-      inviteId: data.data.inviteId,
+      inviteToken: data.data.inviteToken,
     };
   }
 
@@ -96,10 +99,12 @@ export async function validateInvite(token: string) {
   const res = await fetch(
     `${backendUrl}/api/organization/validate-invite/${token}`
   );
+
   const data = (await res.json()) as BackendResponse<{
     organizationId: string;
     email: string;
   } | null>;
+
   if (!data.ok) {
     throw new Error(data.message || "Failed to validate invite");
   }
@@ -115,10 +120,12 @@ export async function validateInviteForRegister(token: string) {
   const res = await fetch(
     `${backendUrl}/api/organization/validate-invite/${token}?register=true`
   );
+
   const data = (await res.json()) as BackendResponse<{
     organizationId: string;
     email: string;
   } | null>;
+
   if (!data.ok) {
     throw new Error(data.message || "Failed to validate invite");
   }

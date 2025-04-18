@@ -28,6 +28,9 @@ export function useCheckPermissions(actions: string[], resources: string[]) {
   const { data, isPending } = useQuery({
     queryKey: ["permissions", ...actions.sort(), ...resources.sort()],
     queryFn: () => hasPermissions(actions, resources),
+    staleTime: 1000 * 60 * 60 * 5, // 5 hours
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
 
   return { isAllowed: data, isPending };
