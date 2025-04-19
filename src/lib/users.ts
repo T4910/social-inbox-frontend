@@ -37,7 +37,7 @@ export async function getUserById(id: string, organizationId: string) {
 // update user (scoped)
 export async function updateUser(
   id: string,
-  user: Partial<User>,
+  user: Partial<{ email: string; roleId: string }>,
   organizationId: string
 ) {
   const res = await fetch(
@@ -47,10 +47,19 @@ export async function updateUser(
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(user),
+      body: JSON.stringify({
+        user: { email: user.email },
+        role: { id: user.roleId },
+      }),
     }
   );
   const data = (await res.json()) as BackendResponse<User>;
+
+  console.log("from updateuse server action: ", data, {
+    id,
+    user,
+    organizationId,
+  });
 
   if (!data.ok) {
     throw new Error("Failed to update user");

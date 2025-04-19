@@ -130,14 +130,14 @@ export async function hasPermissions(
       return false;
     }
 
-    console.log(
-      "Action from server: ",
-      actions,
-      "Resources: ",
-      resources,
-      "can do it: ",
-      data.data
-    );
+    // console.log(
+    //   "Action from server: ",
+    //   actions,
+    //   "Resources: ",
+    //   resources,
+    //   "can do it: ",
+    //   data.data
+    // );
 
     return data.data || false;
   } catch (error) {

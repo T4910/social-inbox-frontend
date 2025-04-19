@@ -12,6 +12,7 @@ import {
   LogOut,
   Menu,
   Settings,
+  Users,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -23,16 +24,10 @@ export function AppSidebar() {
   const { user, logOutUser } = useAuth();
   const { isAllowed: readRoles } = useCheckPermissions(["read"], ["roles"]);
 
-  console.log("can read roels: ", readRoles);
-  // const isAdmin =
-  //   user?.memberships?.find((m) => m.isCurrent)?.role === "administrator";
-
-  // const readRoles =  await hasPermissions(["read"], ["roles"]);
-
   const navigation = [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     { name: "Tasks", href: "/tasks", icon: CheckSquare },
-    // { name: "Team", href: "/team", icon: Users },
+    { name: "Team", href: "/users", icon: Users },
     ...(readRoles
       ? [{ name: "Role Management", href: "/admin/roles", icon: Settings }]
       : []),

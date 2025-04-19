@@ -1,7 +1,12 @@
 export type User = {
   id: string;
   email: string;
-  roles: { name: string }[];
+  orgRole: {
+    id: string;
+    organizationId: string;
+    name: string;
+    description?: string;
+  };
   memberships: {
     organizationId: string;
     organizationName: string;

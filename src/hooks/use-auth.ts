@@ -14,6 +14,10 @@ export function useAuth() {
     refetchOnReconnect: false,
   });
 
+  const currentOrgId = user?.memberships?.find(
+    (m) => m.isCurrent
+  )?.organizationId;
+
   const logOutUser = async () => {
     await logout();
     queryClient.clear();
@@ -21,7 +25,7 @@ export function useAuth() {
     router.refresh();
   };
 
-  return { user, logOutUser };
+  return { user, currentOrgId, logOutUser };
 }
 
 export function useCheckPermissions(actions: string[], resources: string[]) {

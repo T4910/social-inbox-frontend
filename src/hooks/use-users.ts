@@ -6,6 +6,7 @@ import {
   getUserById as getUserByIdServer,
   updateUser,
 } from "@/lib/users";
+import { invalidateQueriesWithString } from "@/lib/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export function useUsers() {
@@ -27,6 +28,8 @@ export function useUsers() {
       queryClient.invalidateQueries({
         queryKey: ["users", organizationId, user.id],
       });
+      queryClient.invalidateQueries({ queryKey: ["currentUser"] });
+      invalidateQueriesWithString(queryClient, "permissions");
     },
     onError: (error) => console.error("Error updating user:", error),
   });

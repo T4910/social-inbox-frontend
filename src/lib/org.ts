@@ -41,6 +41,37 @@ export async function createOrganization(
   };
 }
 
+export async function emailInvites(
+  userId: string,
+  orgId: string,
+  invites: string[]
+) {
+  const payload = { userId, invites };
+
+  const res = await fetch(
+    `${backendUrl}/api/organization/invite?organizationId=${orgId}`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    }
+  );
+
+  const data = (await res.json()) as BackendResponse<{ data: null }>;
+
+  if (!data.ok) {
+    throw new Error(data.message || "Failed to send invites");
+  }
+
+  return {
+    message: "Invites sent successfully",
+    ok: data.ok,
+    status: data.status,
+  };
+}
+
 export async function acceptInvite(token: string) {
   const res = await fetch(
     `${backendUrl}/api/organization/accept-invite/${token}`,

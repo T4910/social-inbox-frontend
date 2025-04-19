@@ -123,7 +123,7 @@ export function RolesManagementView() {
                       <TableHead>Permissions</TableHead>
                     </PermissionCheck>
                     <PermissionCheck
-                      actions={["update", "delete", "create"]}
+                      actions={["update", "delete"]}
                       resources={["roles"]}
                     >
                       <TableHead className="w-[100px]">Actions</TableHead>
@@ -162,54 +162,56 @@ export function RolesManagementView() {
                       >
                         <TableCell>
                           <div className="flex items-center gap-2">
-                            {/* <PermissionCheck
+                            <PermissionCheck
                               actions={["update"]}
                               resources={["roles"]}
-                            > */}
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => setEditingRole(role)}
                             >
-                              <Edit className="h-4 w-4" />
-                              <span className="sr-only">Edit</span>
-                            </Button>
-                            {/* </PermissionCheck> */}
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => setEditingRole(role)}
+                              >
+                                <Edit className="h-4 w-4" />
+                                <span className="sr-only">Edit</span>
+                              </Button>
+                            </PermissionCheck>
 
-                            {/* <PermissionCheck
+                            <PermissionCheck
                               actions={["delete"]}
                               resources={["roles"]}
-                            > */}
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button variant="ghost" size="icon">
-                                  <Trash2 className="h-4 w-4" />
-                                  <span className="sr-only">Delete</span>
-                                </Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>
-                                    Are you sure?
-                                  </AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    This action cannot be undone. This will
-                                    permanently delete the role.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction
-                                    onClick={() =>
-                                      handleDeleteRole(role.id, role.name)
-                                    }
-                                  >
-                                    Delete
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                            {/* </PermissionCheck> */}
+                            >
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button variant="ghost" size="icon">
+                                    <Trash2 className="h-4 w-4" />
+                                    <span className="sr-only">Delete</span>
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>
+                                      Are you sure?
+                                    </AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      This action cannot be undone. This will
+                                      permanently delete the role.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>
+                                      Cancel
+                                    </AlertDialogCancel>
+                                    <AlertDialogAction
+                                      onClick={() =>
+                                        handleDeleteRole(role.id, role.name)
+                                      }
+                                    >
+                                      Delete
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </PermissionCheck>
                           </div>
                         </TableCell>
                       </PermissionCheck>
