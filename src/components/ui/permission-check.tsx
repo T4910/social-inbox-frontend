@@ -1,3 +1,4 @@
+import { useCheckPermissions } from "@/hooks/use-auth";
 import { hasPermissions } from "@/lib/auth";
 import { useEffect, useState } from "react";
 import { Skeleton } from "./skeleton";
@@ -13,12 +14,8 @@ export function PermissionCheck({
   children: React.ReactNode;
   fallback?: React.ReactNode;
 }) {
-  const [allowed, setAllowed] = useState<boolean | null>(null);
+  const { isAllowed } = useCheckPermissions(actions, resources); // This is to keep the permissions in sync with the server
 
-  useEffect(() => {
-    hasPermissions(actions, resources).then(setAllowed);
-  }, [actions, resources]);
-
-  if (allowed === null) return null;
-  return allowed ? <>{children}</> : <>{fallback}</>;
+  if (isAllowed === null) return null;
+  return isAllowed ? <>{children}</> : <>{fallback}</>;
 }
