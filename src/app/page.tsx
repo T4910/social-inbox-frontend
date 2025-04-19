@@ -5,9 +5,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { getCurrentUser } from "@/lib/auth";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 export default async function Home() {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    redirect("/login");
+  }
   return (
     <div className="flex items-center justify-center h-screen">
       <Card className="w-full max-w-md">
