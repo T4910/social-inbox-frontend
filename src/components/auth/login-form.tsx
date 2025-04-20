@@ -113,6 +113,23 @@ export function LoginForm() {
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Signing in..." : "Sign in"}
             </Button>
+            {/* <Button
+              asChild
+              className="w-full bg-white text-black border border-gray-300 hover:bg-gray-100 mt-2"
+            >
+              <a
+                href={`${
+                  process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8787"
+                }/api/auth/google`}
+              >
+                <img
+                  src="/google-icon.svg"
+                  alt="Google"
+                  className="inline h-5 w-5 mr-2 align-middle"
+                />
+                Sign in with Google
+              </a>
+            </Button> */}
           </form>
         </Form>
       </CardContent>
@@ -122,7 +139,7 @@ export function LoginForm() {
         <p>{"(email: editor@taiwo.com, password: editor@taiwo.com)"}</p>
         <p>{"(email: viewer@taiwo.com, password: viewer@taiwo.com)"}</p>
         <p className="mt-4">
-          Don{"'"}t have an account,{" "}
+          Don{"'"}t have an account?{" "}
           <Link className=" text-orange-400 underline" href="/signup">
             Sign up
           </Link>

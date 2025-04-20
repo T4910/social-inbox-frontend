@@ -6,6 +6,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -32,6 +33,7 @@ import {
 } from "@/lib/org";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertCircle } from "lucide-react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -240,9 +242,35 @@ export function SignupForm() {
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? "Signing up..." : "Sign up"}
               </Button>
+              {/* <Button
+                asChild
+                className="w-full bg-white text-black border border-gray-300 hover:bg-gray-100 mt-2"
+              >
+                <a
+                  href={`${
+                    process.env.NEXT_PUBLIC_BACKEND_URL ||
+                    "http://localhost:8787"
+                  }/api/auth/google`}
+                >
+                  <img
+                    src="/google-icon.svg"
+                    alt="Google"
+                    className="inline h-5 w-5 mr-2 align-middle"
+                  />
+                  Sign up with Google
+                </a>
+              </Button> */}
             </form>
           </Form>
         </CardContent>
+        <CardFooter className="flex flex-col items-center text-sm text-muted-foreground">
+          <p className="mt-4">
+            Have an account?{" "}
+            <Link className=" text-orange-400 underline" href="/login">
+              Sign in
+            </Link>
+          </p>
+        </CardFooter>
       </Card>
       <Dialog open={showOrgDialog}>
         <DialogContent>
