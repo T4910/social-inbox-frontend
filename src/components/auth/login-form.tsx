@@ -134,10 +134,8 @@ export function LoginForm() {
         </Form>
       </CardContent>
       <CardFooter className="flex flex-col items-center text-sm text-muted-foreground">
-        Demo Accounts:
-        <p>{"(email: admin@taiwo.com, password: admin@taiwo.com)"}</p>
-        <p>{"(email: editor@taiwo.com, password: editor@taiwo.com)"}</p>
-        <p>{"(email: viewer@taiwo.com, password: viewer@taiwo.com)"}</p>
+        Demo Account:
+        <p>{"(email: ttaiwo4910@gmail.com, password: a)"}</p>
         <p className="mt-4">
           Don{"'"}t have an account?{" "}
           <Link className=" text-orange-400 underline" href="/signup">
