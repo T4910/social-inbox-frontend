@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { RolesManagementView } from "@/components/admin/roles-management-view";
 import { getCurrentUser, hasPermissions } from "@/lib/auth";
 import { redirect } from "next/navigation";

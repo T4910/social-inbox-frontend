@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { DashboardView } from "@/components/dashboard/dashboard-view";
 // import { PermissionCheck } from "@/components/ui/permission-check";
 import { getCurrentUser } from "@/lib/auth";

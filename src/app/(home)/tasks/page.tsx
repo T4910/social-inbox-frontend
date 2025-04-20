@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { TasksView } from "@/components/tasks/tasks-view";
 import { getCurrentUser, hasPermissions } from "@/lib/auth";
 import { redirect } from "next/navigation";

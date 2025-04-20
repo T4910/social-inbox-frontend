@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { UsersOverviewView } from "@/components/users/users-overview-view";
 import { getCurrentUser } from "@/lib/auth";
 import { redirect } from "next/navigation";
