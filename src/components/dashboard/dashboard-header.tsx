@@ -10,25 +10,23 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/use-auth";
 import { switchOrganization } from "@/lib/auth";
-import { useQuery } from "@tanstack/react-query";
 import { Bell, Menu, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+// import { useRouter } from "next/navigation";
+// import { useState } from "react";
 
 export function DashboardHeader() {
-  const router = useRouter();
   const { toggle } = useSidebar();
   const { setTheme } = useTheme();
   const { user } = useAuth();
-  const [orgSwitching, setOrgSwitching] = useState(false);
+  // const [orgSwitching, setOrgSwitching] = useState(false);
   const organizations = user?.memberships || [];
   const currentOrgId =
     user?.memberships?.find((m) => m.isCurrent)?.organizationId ||
     organizations[0]?.organizationId;
 
   const handleSwitchOrg = async (orgId: string) => {
-    setOrgSwitching(true);
+    // setOrgSwitching(true);
     await switchOrganization(orgId);
     window.location.reload();
     // router.

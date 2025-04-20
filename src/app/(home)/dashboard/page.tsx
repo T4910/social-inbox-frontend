@@ -1,5 +1,5 @@
 import { DashboardView } from "@/components/dashboard/dashboard-view";
-import { PermissionCheck } from "@/components/ui/permission-check";
+// import { PermissionCheck } from "@/components/ui/permission-check";
 import { getCurrentUser } from "@/lib/auth";
 import { redirect } from "next/navigation";
 

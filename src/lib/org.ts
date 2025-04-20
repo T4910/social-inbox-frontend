@@ -1,6 +1,6 @@
 "use server";
 import { cookies } from "next/headers";
-import { BackendResponse, Organization } from "./types";
+import { BackendResponse } from "./types";
 
 const backendUrl = process.env.BACKEND_URL || "http://localhost:8787";
 

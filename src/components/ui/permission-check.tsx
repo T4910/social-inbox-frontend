@@ -1,7 +1,4 @@
 import { useCheckPermissions } from "@/hooks/use-auth";
-import { hasPermissions } from "@/lib/auth";
-import { useEffect, useState } from "react";
-import { Skeleton } from "./skeleton";
 
 export function PermissionCheck({
   actions,

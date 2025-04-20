@@ -1,6 +1,5 @@
 import { useAuth } from "@/hooks/use-auth";
 import {
-  // addCommentToTask,
   createTask,
   deleteTask,
   getAllTasks,
@@ -14,19 +13,23 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 export function useTask() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
-  const organizationId = user?.memberships?.find((m) => m.isCurrent)
-    ?.organizationId!;
+  const organizationId =
+    user?.memberships?.find((m) => m.isCurrent)?.organizationId || "";
 
   const { data: allTasks } = useQuery({
     queryKey: ["tasks", organizationId],
-    queryFn: () => getAllTasks(organizationId),
+    queryFn: () =>
+      organizationId ? getAllTasks(organizationId) : Promise.resolve([]),
     enabled: !!organizationId,
   });
 
   const useTaskById = (id: string) => {
     const { data: task } = useQuery({
       queryKey: ["tasks", organizationId, id],
-      queryFn: () => getTaskByIdServer(id, organizationId),
+      queryFn: () =>
+        id && organizationId
+          ? getTaskByIdServer(id, organizationId)
+          : Promise.resolve(undefined),
       enabled: !!id && !!organizationId,
       initialData: allTasks?.find((task) => task.id === id),
     });
@@ -53,7 +56,7 @@ export function useTask() {
   });
 
   const deleteTaskMutation = useMutation({
-    mutationFn: (taskId: string) => deleteTask(taskId, organizationId),
+    mutationFn: (taskId: string) => deleteTask(taskId, organizationId || ""),
     onSuccess: (task) => {
       queryClient.invalidateQueries({ queryKey: ["tasks", organizationId] });
       queryClient.invalidateQueries({
@@ -92,11 +95,15 @@ export function useTask() {
 
 export function useAssignedTask(userId: string) {
   const { user } = useAuth();
-  const organizationId = user?.memberships?.find((m) => m.isCurrent)
-    ?.organizationId!;
+  const organizationId =
+    user?.memberships?.find((m) => m.isCurrent)?.organizationId || "";
+
   const { data: allUserTasks } = useQuery({
     queryKey: ["tasks", organizationId, userId],
-    queryFn: () => getTaskByAssigneeId(userId, organizationId),
+    queryFn: () =>
+      organizationId && userId
+        ? getTaskByAssigneeId(userId, organizationId)
+        : Promise.resolve([]),
     enabled: !!organizationId && !!userId,
   });
   return {

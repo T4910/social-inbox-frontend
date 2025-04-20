@@ -12,12 +12,13 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 export function useUsers() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
-  const organizationId = user?.memberships?.find((m) => m.isCurrent)
-    ?.organizationId!;
+  const organizationId =
+    user?.memberships?.find((m) => m.isCurrent)?.organizationId || "";
 
   const { data: allUsers } = useQuery({
     queryKey: ["users", organizationId],
-    queryFn: () => getAllUsers(organizationId),
+    queryFn: () =>
+      organizationId ? getAllUsers(organizationId) : Promise.resolve([]),
     enabled: !!organizationId,
   });
 
@@ -67,13 +68,16 @@ export function useUsers() {
 export const useUserById = (id: string) => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
-  const organizationId = user?.memberships?.find((m) => m.isCurrent)
-    ?.organizationId!;
+  const organizationId =
+    user?.memberships?.find((m) => m.isCurrent)?.organizationId || "";
   const allUsers = queryClient.getQueryData<User[]>(["users", organizationId]);
 
   const { data: userData } = useQuery({
     queryKey: ["users", organizationId, id],
-    queryFn: () => getUserByIdServer(id, organizationId),
+    queryFn: () =>
+      organizationId
+        ? getUserByIdServer(id, organizationId)
+        : Promise.resolve(undefined),
     enabled: !!id && !!organizationId,
     initialData: allUsers?.find((user) => user.id === id),
   });

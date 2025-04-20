@@ -26,7 +26,6 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
-import { useAuth, useCheckPermissions } from "@/hooks/use-auth";
 import { useTask } from "@/hooks/use-task";
 import { useUsers } from "@/hooks/use-users";
 import { addCommentToTask, deleteTask } from "@/lib/tasks";

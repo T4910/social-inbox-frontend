@@ -5,26 +5,27 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export function useRoles() {
   const queryClient = useQueryClient();
-  const { user } = useAuth();
-  const organizationId = user?.memberships?.find((m) => m.isCurrent)
-    ?.organizationId!;
+  const { currentOrgId: organizationId } = useAuth();
+  // const organizationId = user?.memberships?.find((m) => m.isCurrent)
+  //   ?.organizationId!;
 
   const { data: allRoles } = useQuery({
     queryKey: ["roles", organizationId],
-    queryFn: () => getRoles(organizationId),
+    queryFn: () => getRoles(organizationId ?? ""),
     enabled: !!organizationId,
   });
 
   const createRoleMutation = useMutation({
     mutationFn: (role: Omit<Role, "id">) =>
-      createRole({ ...role, organizationId }),
+      createRole({ ...role, organizationId: organizationId ?? "" }),
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: ["roles", organizationId] }),
     onError: (error) => console.error("Error creating role:", error),
   });
 
   const updateRoleMutation = useMutation({
-    mutationFn: (role: Role) => updateRole({ ...role, organizationId }),
+    mutationFn: (role: Role) =>
+      updateRole({ ...role, organizationId: organizationId ?? "" }),
     onSuccess: (role) => {
       queryClient.invalidateQueries({ queryKey: ["roles", organizationId] });
       queryClient.invalidateQueries({
@@ -35,7 +36,7 @@ export function useRoles() {
   });
 
   const deleteRoleMutation = useMutation({
-    mutationFn: (roleId: string) => deleteRole(roleId, organizationId),
+    mutationFn: (roleId: string) => deleteRole(roleId, organizationId || ""),
     onSuccess: (_, roleId) => {
       queryClient.invalidateQueries({ queryKey: ["roles", organizationId] });
       queryClient.invalidateQueries({

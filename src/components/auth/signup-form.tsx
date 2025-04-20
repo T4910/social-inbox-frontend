@@ -95,7 +95,7 @@ export function SignupForm() {
     }
 
     validateInvite();
-  }, [form]);
+  }, [form, orgInvite]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
@@ -164,6 +164,7 @@ export function SignupForm() {
       }
     } catch (e) {
       setOrgError("Failed to create organization.");
+      console.log(e);
     } finally {
       setOrgLoading(false);
     }

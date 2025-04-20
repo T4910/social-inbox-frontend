@@ -8,7 +8,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -141,8 +140,9 @@ export function UsersOverviewView() {
             onSubmit={(data) => {
               setInviteDialogOpen(false);
               console.log(data);
+              if (!user) return;
               emailInvites(
-                user!?.id,
+                user.id,
                 currentOrgId || "",
                 data.invites.split(",").map((email) => email.trim())
               );

@@ -59,10 +59,15 @@ export function UserProfileView({
   useEffect(() => {
     async function fetchUser() {
       try {
-        const u = await getUserById(
-          userId,
-          currentUser.memberships.find((m) => m.isCurrent)?.organizationId!
-        );
+        const orgId = currentUser.memberships.find(
+          (m) => m.isCurrent
+        )?.organizationId;
+        if (!orgId) {
+          setUser(null);
+          setLoading(false);
+          return;
+        }
+        const u = await getUserById(userId, orgId);
         setUser(u);
       } finally {
         setLoading(false);
@@ -73,17 +78,20 @@ export function UserProfileView({
 
   const handleSave = async (values: { email: string; password?: string }) => {
     setSaving(true);
+    const orgId = currentUser.memberships.find(
+      (m) => m.isCurrent
+    )?.organizationId;
+    if (!orgId) {
+      setSaving(false);
+      return;
+    }
     const updateData: { email: string; password?: string } = {
       email: values.email,
     };
     if (values.password) {
       updateData.password = values.password;
     }
-    await updateUser(
-      userId,
-      updateData,
-      currentUser.memberships.find((m) => m.isCurrent)?.organizationId!
-    );
+    await updateUser(userId, updateData, orgId);
     setSaving(false);
     setEditMode(false);
   };
