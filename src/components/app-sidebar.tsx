@@ -23,11 +23,17 @@ export function AppSidebar() {
 
   const { user, logOutUser } = useAuth();
   const { isAllowed: readRoles } = useCheckPermissions(["read"], ["roles"]);
+  const { isAllowed: readTasks } = useCheckPermissions(["read"], ["tasks"]);
+  const { isAllowed: readUsers } = useCheckPermissions(["read"], ["users"]);
 
   const navigation = [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-    { name: "Tasks", href: "/tasks", icon: CheckSquare },
-    { name: "Team", href: "/users", icon: Users },
+    ...(readTasks
+      ? [{ name: "Tasks", href: "/tasks", icon: CheckSquare }]
+      : []),
+    ...(readUsers
+      ? [{ name: "Team", href: "/users", icon: Users }]
+      : []),
     ...(readRoles
       ? [{ name: "Role Management", href: "/admin/roles", icon: Settings }]
       : []),
